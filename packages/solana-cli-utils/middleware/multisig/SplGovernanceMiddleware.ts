@@ -15,6 +15,7 @@ import {
   VoteType,
   withCreateProposal,
   withInsertTransaction,
+  withSignOffProposal,
 } from '@solana/spl-governance';
 
 export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
@@ -119,6 +120,18 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
       0,
       inner.instructions.map(createInstructionData),
       rentPayerKey
+    );
+
+    withSignOffProposal(
+      tx.instructions,
+      SplGovernanceMiddleware.PROG_ID,
+      PROGRAM_VERSION,
+      this.goverance.account.realm,
+      this.goverance.pubkey,
+      proposal,
+      proposerKey,
+      undefined,
+      undefined
     );
     return tx;
   }
