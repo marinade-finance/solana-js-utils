@@ -2,6 +2,7 @@ import { GokiSDK } from '@gokiprotocol/client';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { Middleware } from '..';
 import { GokiMiddleware } from './GokiMiddleware';
+import { MultisigMiddlewareBase } from './MultisigMiddlewareBase';
 import { SplGovernanceMiddleware } from './SplGovernanceMiddleware';
 
 export { GokiMiddleware } from './GokiMiddleware';
@@ -22,6 +23,12 @@ export async function installMultisigMiddleware({
   rentPayer?: Keypair;
   logOnly?: boolean;
 }) {
+  // Prevent doublication of multisig
+  for (const m of middleware) {
+    if (m instanceof MultisigMiddlewareBase && m.signingBy.equals(address)) {
+      return;
+    }
+  }
   const account = await goki.provider.getAccountInfo(address);
   if (account) {
     if (account.accountInfo.owner.equals(goki.programs.SmartWallet.programId)) {
