@@ -131,7 +131,7 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
       proposal,
       proposerKey,
       undefined,
-      undefined
+      tokenOwnerRecord
     );
     return tx;
   }
