@@ -114,7 +114,7 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
       proposal,
       tokenOwnerRecord,
       proposerKey,
-      this.goverance.account.proposalCount,
+      0,
       0,
       0,
       inner.instructions.map(createInstructionData),
