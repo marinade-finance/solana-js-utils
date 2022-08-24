@@ -19,7 +19,7 @@
     "@saberhq/solana-contrib": "^1.14.1",
     "@solana/spl-token": "^0.2.0",
     "bn.js": "^5.2.1",
-    "@marinade.finance/solana-cli-utils": "workspace:^0.0.4"
+    "@marinade.finance/solana-cli-utils": "workspace:^0.0.9"
   },
   "devDependencies": {
     "@types/mz": "^2.7.4",

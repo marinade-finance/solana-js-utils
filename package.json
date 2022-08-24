@@ -23,7 +23,10 @@
     "peerDependencyRules": {
       "ignoreMissing": [
         "react-native"
-      ]
+      ],
+      "allowedVersions": {
+        "jest": "28"
+      }
     }
   }
 }
