@@ -2,7 +2,7 @@ import { file } from 'tmp-promise';
 import { Keypair } from '@solana/web3.js';
 import { fs } from 'mz';
 
-export const createFileKeypair = async (seed?: Keypair) => {
+export const createTempFileKeypair = async (seed?: Keypair) => {
   const keypair = seed ?? new Keypair();
 
   const { path, cleanup } = await file();
