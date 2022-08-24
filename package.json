@@ -9,7 +9,8 @@
     "prepare": "pnpm compile",
     "pretest": "pnpm compile",
     "posttest": "pnpm lint",
-    "publish-cli-utils": "pnpm compile && pnpm publish build/packages/solana-cli-utils"
+    "publish-cli-utils": "pnpm compile && pnpm publish build/packages/solana-cli-utils",
+    "publish-test-utils": "pnpm compile && pnpm publish build/packages/solana-test-utils"
   },
   "keywords": [],
   "author": "",
