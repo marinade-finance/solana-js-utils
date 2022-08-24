@@ -19,7 +19,7 @@ export async function run(bpfPrograms: { address: PublicKey; path: string }[]) {
       wallet: new SignerWallet(await parseKeypair('~/.config/solana/id.json')),
     });
 
-    let wait = 10000;
+    let wait = 40000;
     const step = 100;
     while (wait > 0) {
       try {
