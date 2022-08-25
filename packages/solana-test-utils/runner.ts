@@ -6,7 +6,7 @@ import { parseKeypair } from '@marinade.finance/solana-cli-utils';
 export async function run(bpfPrograms: { address: PublicKey; path: string }[]) {
   let args: string[] = [];
   bpfPrograms.forEach(({ path, address }) => {
-    args = args.concat(['--bpf-program', path]);
+    args = args.concat(['--bpf-program', address.toBase58(), path]);
   });
   console.log('Starting test validator');
   const testValidator = spawn('solana-test-validator', args);

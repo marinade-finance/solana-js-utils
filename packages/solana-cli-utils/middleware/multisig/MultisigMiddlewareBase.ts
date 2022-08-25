@@ -14,12 +14,30 @@ export abstract class MultisigMiddlewareBase implements Middleware {
     if (start < 0) {
       return tx;
     }
+
     const inner = tx.instructions.splice(start);
-    return tx.combine(
-      await this.createTransaction(
-        new TransactionEnvelope(tx.provider, inner, tx.signers)
-      )
-    );
+    while (inner.length > 0) {
+      for (let count = inner.length; count > 0; count--) {
+        const used = inner.slice(0, count);
+        const wrapped = await this.createTransaction(
+          new TransactionEnvelope(tx.provider, used, tx.signers)
+        );
+        try {
+          wrapped.partition();
+          // save wrapper into original tx
+          tx = tx.combine(wrapped);
+          // Remove all instrctions already wrapped
+          inner.splice(0, count);
+          break; // for
+        } catch (e) {
+          if (count === 1) {
+            throw e; // can not wrap even single instruction
+          }
+          // retry with less instruction count
+        }
+      }
+    }
+    return tx;
   }
 
   abstract createTransaction(
