@@ -1,6 +1,5 @@
 import { Provider, TransactionEnvelope } from '@saberhq/solana-contrib';
 import {
-  ASSOCIATED_TOKEN_PROGRAM_ID,
   createAssociatedTokenAccountInstruction,
   createInitializeMintInstruction,
   createMintToInstruction,

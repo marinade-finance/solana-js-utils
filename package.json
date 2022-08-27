@@ -17,7 +17,10 @@
   "license": "ISC",
   "devDependencies": {
     "gts": "^3.1.0",
-    "typescript": "^4.0.3"
+    "typescript": "4.7.4"
+  },
+  "engines": {
+    "node": "v10.4.0"
   },
   "pnpm": {
     "peerDependencyRules": {
@@ -26,6 +29,13 @@
       ],
       "allowedVersions": {
         "jest": "28"
+      },
+      "packageExtensions": {
+        "@gokiprotocol/client": {
+          "dependencies": {
+            "@solana/buffer-layout": "^3.0.0"
+          }
+        }
       }
     }
   }
