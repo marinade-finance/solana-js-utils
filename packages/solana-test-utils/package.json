@@ -1,6 +1,6 @@
 {
   "name": "@marinade.finance/solana-test-utils",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "Common code for testing solana related typescript",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -13,7 +13,7 @@
     "node": "v10.4.0"
   },
   "dependencies": {
-    "@marinade.finance/solana-cli-utils": "workspace:^0.0.11",
+    "@marinade.finance/solana-cli-utils": "workspace:^0.0.12",
     "@solana/spl-token": "^0.3.4",
     "jest": "^29.0.1",
     "jest-shell-matchers": "^1.0.2",
@@ -29,13 +29,11 @@
     "@types/node": "^18.7.13",
     "@types/node-fetch": "^2.6.2",
     "@types/tmp": "^0.2.3",
-    "add": "^2.0.6",
     "bn.js": "^5.2.1"
   },
   "peerDependencies": {
     "@saberhq/solana-contrib": "^1.14.4",
     "@solana/web3.js": "^1.54.0",
-    "add": "^2.0.6",
     "bn.js": "^5.2.1"
   }
 }
