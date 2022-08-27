@@ -10,7 +10,7 @@
   "license": "ISC",
   "typings": "typings/index.d.ts",
   "engines": {
-    "node": "v10.4.0"
+    "node": ">10"
   },
   "dependencies": {
     "@marinade.finance/solana-cli-utils": "workspace:^0.0.12",
