@@ -16,7 +16,7 @@ export type OperatorHelperFactory = (
 export class OperatorHelper {
   private constructor(
     public readonly wrapper: Operator,
-    public readonly admin?: Keypair | MultisigHelper,
+    public readonly admin?: PublicKey | Keypair | MultisigHelper,
     public readonly rateSetter?: Keypair | MultisigHelper,
     public readonly shareAllocator?: Keypair | MultisigHelper,
     public readonly quarryCreator?: Keypair | MultisigHelper
@@ -30,7 +30,7 @@ export class OperatorHelper {
     quarryCreator,
   }: {
     sdk: QuarrySDK;
-    admin?: Keypair | MultisigHelper;
+    admin?: PublicKey | Keypair | MultisigHelper;
     rateSetter?: Keypair | MultisigHelper;
     shareAllocator?: Keypair | MultisigHelper;
     quarryCreator?: Keypair | MultisigHelper;
@@ -38,6 +38,8 @@ export class OperatorHelper {
     let adminAuthority: PublicKey;
     if (admin instanceof MultisigHelper) {
       adminAuthority = admin.authority;
+    } else if (admin instanceof PublicKey) {
+      adminAuthority = admin;
     } else {
       adminAuthority = admin?.publicKey || sdk.provider.walletKey;
     }
