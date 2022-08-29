@@ -28,14 +28,27 @@
       ],
       "allowedVersions": {
         "jest": "28"
+      }
+    },
+    "packageExtensions": {
+      "@gokiprotocol/client": {
+        "dependencies": {
+          "@solana/buffer-layout": "^3.0.0"
+        }
       },
-      "packageExtensions": {
-        "@gokiprotocol/client": {
-          "dependencies": {
-            "@solana/buffer-layout": "^3.0.0"
-          }
+      "@saberhq/token-utils": {
+        "patchedDependencies": {
+          "@solana/spl-token@0.1.8": "patches/@solana__spl-token@0.1.8.patch"
+        }
+      },
+      "@solana/spl-token@0.1.8": {
+        "dependencies": {
+          "@solana/buffer-layout": "^3.0.0"
         }
       }
+    },
+    "patchedDependencies": {
+      "@solana/spl-token@0.1.8": "patches/@solana__spl-token@0.1.8.patch"
     }
   }
 }

@@ -7,7 +7,7 @@ import {
   getMinimumBalanceForRentExemptMint,
   MintLayout,
   TOKEN_PROGRAM_ID,
-} from '@solana/spl-token';
+} from 'solana-spl-token-modern';
 import { Keypair, PublicKey, Signer, SystemProgram } from '@solana/web3.js';
 import BN from 'bn.js';
 
