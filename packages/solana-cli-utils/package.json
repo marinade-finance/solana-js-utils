@@ -1,6 +1,6 @@
 {
   "name": "@marinade.finance/solana-cli-utils",
-  "version": "0.0.13",
+  "version": "0.0.16",
   "description": "Common code for making solana related CLI",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -18,7 +18,7 @@
     "@types/bn.js": "^5.1.0",
     "@types/expand-tilde": "^2.0.0",
     "@types/mz": "^2.7.4",
-    "@types/node": "^18.7.13",
+    "@types/node": "^18.7.14",
     "@types/node-fetch": "^2.6.2",
     "bn.js": "^5.2.1",
     "jsbi": "^4.3.0"
