@@ -1,7 +1,7 @@
 import { Operator, QuarrySDK } from '@quarryprotocol/quarry-sdk';
 import { TransactionEnvelope } from '@saberhq/solana-contrib';
-import { Keypair, PublicKey } from '@solana/web3.js';
-import { MultisigHelper } from '../multisig';
+import { PublicKey } from '@solana/web3.js';
+import { SignerHelper, WalletSignerHelper } from '../signer';
 
 export interface PendingOperatorHelper {
   tx: TransactionEnvelope;
@@ -14,102 +14,81 @@ export type OperatorHelperFactory = (
 ) => Promise<PendingOperatorHelper>;
 
 export class OperatorHelper {
+  // TODO implement SignerHelper
   private constructor(
     public readonly wrapper: Operator,
-    public readonly admin?: PublicKey | Keypair | MultisigHelper,
-    public readonly rateSetter?: Keypair | MultisigHelper,
-    public readonly shareAllocator?: Keypair | MultisigHelper,
-    public readonly quarryCreator?: Keypair | MultisigHelper
+    public readonly admin: SignerHelper,
+    public readonly rateSetter: SignerHelper,
+    public readonly shareAllocator: SignerHelper,
+    public readonly quarryCreator: SignerHelper
   ) {}
 
   static prepare({
     sdk,
-    admin,
-    rateSetter,
-    shareAllocator,
-    quarryCreator,
+    admin = new WalletSignerHelper(sdk.provider.wallet),
+    rateSetter = new WalletSignerHelper(sdk.provider.wallet),
+    shareAllocator = new WalletSignerHelper(sdk.provider.wallet),
+    quarryCreator = new WalletSignerHelper(sdk.provider.wallet),
   }: {
     sdk: QuarrySDK;
-    admin?: PublicKey | Keypair | MultisigHelper;
-    rateSetter?: Keypair | MultisigHelper;
-    shareAllocator?: Keypair | MultisigHelper;
-    quarryCreator?: Keypair | MultisigHelper;
+    admin?: SignerHelper;
+    rateSetter?: SignerHelper;
+    shareAllocator?: SignerHelper;
+    quarryCreator?: SignerHelper;
   }): OperatorHelperFactory {
-    let adminAuthority: PublicKey;
-    if (admin instanceof MultisigHelper) {
-      adminAuthority = admin.authority;
-    } else if (admin instanceof PublicKey) {
-      adminAuthority = admin;
-    } else {
-      adminAuthority = admin?.publicKey || sdk.provider.walletKey;
-    }
-    const rateSetterAuthority =
-      rateSetter instanceof MultisigHelper
-        ? rateSetter.authority
-        : rateSetter?.publicKey || sdk.provider.walletKey;
-    const shareAllocatorAuthority =
-      shareAllocator instanceof MultisigHelper
-        ? shareAllocator.authority
-        : shareAllocator?.publicKey || sdk.provider.walletKey;
-    const quarryCreatorAuthority =
-      quarryCreator instanceof MultisigHelper
-        ? quarryCreator.authority
-        : quarryCreator?.publicKey || sdk.provider.walletKey;
-
     return async (rewarder: PublicKey) => {
       const { key, tx } = await sdk.createOperator({
         rewarder,
       }); // Admin is wallet for now
 
-      if (!rateSetterAuthority.equals(sdk.provider.walletKey)) {
+      if (!rateSetter.authority.equals(sdk.provider.walletKey)) {
         tx.append(
           await sdk.programs.Operator.methods
             .setRateSetter()
             .accounts({
               operator: key,
-              delegate: rateSetterAuthority,
+              delegate: rateSetter.authority,
             })
             .instruction()
         );
       }
 
-      if (!shareAllocatorAuthority.equals(sdk.provider.walletKey)) {
+      if (!shareAllocator.authority.equals(sdk.provider.walletKey)) {
         tx.append(
           await sdk.programs.Operator.methods
             .setShareAllocator()
             .accounts({
               operator: key,
-              delegate: shareAllocatorAuthority,
+              delegate: shareAllocator.authority,
             })
             .instruction()
         );
       }
 
-      if (!quarryCreatorAuthority.equals(sdk.provider.walletKey)) {
+      if (!quarryCreator.authority.equals(sdk.provider.walletKey)) {
         tx.append(
           await sdk.programs.Operator.methods
             .setQuarryCreator()
             .accounts({
               operator: key,
-              delegate: quarryCreatorAuthority,
+              delegate: quarryCreator.authority,
             })
             .instruction()
         );
       }
 
-      if (!adminAuthority.equals(sdk.provider.walletKey)) {
+      if (!admin.authority.equals(sdk.provider.walletKey)) {
         tx.append(
           await sdk.programs.Operator.methods
             .setAdmin()
             .accounts({
               operator: key,
-              delegate: adminAuthority,
+              delegate: admin.authority,
             })
             .instruction()
         );
       }
 
-      // sdk.programs.Operator.methods.
       return {
         tx,
         key,

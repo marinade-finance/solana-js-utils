@@ -6,3 +6,4 @@ export { createTempFileKeypair } from './tempFileKeypair';
 export { shellMatchers };
 export * from './multisig';
 export * from './quarry';
+export * from './signer';

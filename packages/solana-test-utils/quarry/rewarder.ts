@@ -16,6 +16,7 @@ import {
   OperatorHelperFactory,
   PendingOperatorHelper,
 } from './operator';
+import { SignerHelper, WalletSignerHelper } from '../signer';
 
 export class QuarryHelper {
   constructor(
@@ -27,11 +28,7 @@ export class QuarryHelper {
 export class RewarderHelper {
   private constructor(
     public wrapper: RewarderWrapper,
-    public readonly admin:
-      | OperatorHelper
-      | MultisigHelper
-      | Keypair
-      | undefined,
+    public readonly admin: OperatorHelper | SignerHelper,
     public readonly quarries: QuarryHelper[]
   ) {}
 
@@ -45,12 +42,12 @@ export class RewarderHelper {
 
   static async create({
     sdk,
-    admin,
+    admin = new WalletSignerHelper(sdk.provider.wallet),
     rate = 0,
     quarryShares = [],
   }: {
     sdk: QuarrySDK;
-    admin?: OperatorHelperFactory | MultisigHelper | Keypair;
+    admin?: OperatorHelperFactory | SignerHelper;
     rate?: number;
     quarryShares?: number[];
   }) {
@@ -69,12 +66,8 @@ export class RewarderHelper {
       const [rewarderAddress] = await findRewarderAddress(baseKP.publicKey);
       pendingOperatorHelper = await admin(rewarderAddress);
       adminAuthority = pendingOperatorHelper.key;
-    } else if (admin instanceof MultisigHelper) {
-      adminAuthority = admin.authority;
-    } else if (admin instanceof Keypair) {
-      adminAuthority = admin.publicKey;
     } else {
-      adminAuthority = sdk.provider.walletKey;
+      adminAuthority = admin.authority;
     }
     // eslint-disable-next-line prefer-const
     let { tx, key: rewarderKey } = await sdk.mine.createRewarder({
@@ -139,24 +132,13 @@ export class RewarderHelper {
     }
 
     // Finalizing admin
-    if (admin instanceof Keypair) {
-      await new TransactionEnvelope(
-        sdk.provider,
-        [
-          await sdk.programs.Mine.methods
-            .acceptAuthority()
-            .accounts({
-              authority: adminAuthority,
-              rewarder: rewarderKey,
-            })
-            .instruction(),
-        ],
-        [admin]
-      ).confirm();
-    } else if (pendingOperatorHelper) {
+    if (pendingOperatorHelper) {
       await pendingOperatorHelper.tx.confirm();
-    } else if (admin instanceof MultisigHelper) {
-      const txAddress = await admin.createTransaction(
+    } else if (
+      typeof admin !== 'function' &&
+      !admin.authority.equals(sdk.provider.walletKey)
+    ) {
+      await admin.runTx(
         new TransactionEnvelope(sdk.provider, [
           await sdk.programs.Mine.methods
             .acceptAuthority()
@@ -167,7 +149,6 @@ export class RewarderHelper {
             .instruction(),
         ])
       );
-      await admin.executeTransaction(txAddress);
     }
     rewarderWrapper = await sdk.mine.loadRewarderWrapper(rewarderKey);
     assert(rewarderWrapper.rewarderData.authority.equals(adminAuthority));
@@ -177,7 +158,7 @@ export class RewarderHelper {
       rewarderWrapper,
       pendingOperatorHelper
         ? await pendingOperatorHelper.factory()
-        : (admin as MultisigHelper | Keypair | undefined),
+        : (admin as SignerHelper),
       await Promise.all(
         quarries.map(
           async ({ mint }) =>
