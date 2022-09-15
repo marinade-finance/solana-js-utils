@@ -123,7 +123,7 @@ export class SplGovHelper extends MultisigHelper {
       const tokenOwnerRecord = await TokenOwnerRecordHelper.create({
         realm: governance!.realm,
         owner: member,
-        side: 'community',
+        side: 'council',
       });
       await tokenOwnerRecord.deposit(new BN(1));
       tokenOwnerRecords.push(tokenOwnerRecord);
