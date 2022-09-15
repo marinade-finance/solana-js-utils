@@ -1,10 +1,12 @@
 import { Provider, TransactionEnvelope } from '@saberhq/solana-contrib';
+import { getProposalsByGovernance, Governance } from '@solana/spl-governance';
 import { PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
 import { MintHelper } from '../../mint';
 import { SignerHelper, WalletSignerHelper } from '../../signer';
 import { MultisigHelper } from '../multisig';
 import { GovernanceHelper } from './governance';
+import { SPL_GOVERNANCE_ID } from './id';
 import { ProposalHelper } from './proposal';
 import { RealmHelper } from './realm';
 import { TokenOwnerRecordHelper } from './tokenOwnerRecord';
@@ -53,11 +55,28 @@ export class SplGovHelper extends MultisigHelper {
   }
 
   get numTransactions(): BN {
-    return new BN(this.proposals.length);
+    return new BN(this.governance.data.account.proposalCount);
   }
 
   async reload(): Promise<void> {
-    // TODO
+    await this.governance.reload();
+    if (this.numTransactions.toNumber() > this.proposals.length) {
+      const proposals = await getProposalsByGovernance(
+        this.governance.provider.connection,
+        SPL_GOVERNANCE_ID,
+        this.governance.address
+      );
+      for (const proposal of proposals) {
+        if (!this.proposals.find(p => p.address.equals(proposal.pubkey))) {
+          this.proposals.push(
+            await ProposalHelper.load({
+              address: proposal.pubkey,
+              governance: this.governance,
+            })
+          );
+        }
+      }
+    }
   }
 
   transactionByIndex(index: BN): Promise<PublicKey> {

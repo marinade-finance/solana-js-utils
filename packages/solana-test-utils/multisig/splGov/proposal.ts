@@ -2,6 +2,7 @@ import { TransactionEnvelope } from '@saberhq/solana-contrib';
 import {
   createInstructionData,
   getProposal,
+  getProposalTransactionAddress,
   ProgramAccount,
   PROGRAM_VERSION_V2,
   Proposal,
@@ -15,7 +16,7 @@ import {
   withInsertTransaction,
   withSignOffProposal,
 } from '@solana/spl-governance';
-import { PublicKey } from '@solana/web3.js';
+import { Connection, PublicKey } from '@solana/web3.js';
 import { GovernanceHelper } from './governance';
 import { SPL_GOVERNANCE_ID } from './id';
 import { TokenOwnerRecordHelper } from './tokenOwnerRecord';
@@ -24,11 +25,14 @@ export class ProposalHelper {
   private constructor(
     public readonly governance: GovernanceHelper,
     public readonly ownerRecord: TokenOwnerRecordHelper,
-    public readonly address: PublicKey,
     public readonly executable: TransactionEnvelope | undefined,
     public readonly transactionAddress: PublicKey | undefined,
     public data: ProgramAccount<Proposal>
   ) {}
+
+  get address() {
+    return this.data.pubkey;
+  }
 
   get provider() {
     return this.governance.provider;
@@ -99,10 +103,36 @@ export class ProposalHelper {
     return new ProposalHelper(
       governance,
       ownerRecord,
-      proposal,
       executable,
       transactionAddress,
       await getProposal(ownerRecord.provider.connection, proposal)
+    );
+  }
+
+  static async load({
+    address,
+    governance,
+  }: {
+    address: PublicKey;
+    governance: GovernanceHelper;
+  }) {
+    const data = await getProposal(governance.provider.connection, address);
+    return new ProposalHelper(
+      governance,
+      await TokenOwnerRecordHelper.load({
+        connection: governance.provider.connection,
+        address: data.account.tokenOwnerRecord,
+        realm: governance.realm,
+      }),
+      new TransactionEnvelope(governance.provider, []), // TODO
+      await getProposalTransactionAddress(
+        SPL_GOVERNANCE_ID,
+        PROGRAM_VERSION_V2,
+        address,
+        0,
+        0
+      ),
+      data
     );
   }
 

@@ -7,10 +7,10 @@ import {
   withCreateTokenOwnerRecord,
   withDepositGoverningTokens,
 } from '@solana/spl-governance';
-import { PublicKey } from '@solana/web3.js';
+import { Connection, PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
 import { getAssociatedTokenAddress } from 'solana-spl-token-modern';
-import { SignerHelper, WalletSignerHelper } from '../../signer';
+import { PDASigner, SignerHelper, WalletSignerHelper } from '../../signer';
 import { SPL_GOVERNANCE_ID } from './id';
 import { RealmHelper } from './realm';
 
@@ -21,9 +21,12 @@ export class TokenOwnerRecordHelper {
     public readonly realm: RealmHelper,
     public readonly owner: SignerHelper,
     public readonly side: TokenOwnerRecordSide,
-    public readonly address: PublicKey,
     public data: ProgramAccount<TokenOwnerRecord>
   ) {}
+
+  get address() {
+    return this.data.pubkey;
+  }
 
   get provider() {
     return this.realm.provider;
@@ -61,7 +64,6 @@ export class TokenOwnerRecordHelper {
       realm,
       owner,
       side,
-      tokenOwnerRecord,
       await getTokenOwnerRecord(realm.provider.connection, tokenOwnerRecord)
     );
   }
@@ -87,5 +89,25 @@ export class TokenOwnerRecordHelper {
       amount
     );
     await this.owner.runTx(tx);
+  }
+
+  static async load({
+    connection,
+    address,
+    realm,
+  }: {
+    connection: Connection;
+    address: PublicKey;
+    realm: RealmHelper;
+  }) {
+    const data = await getTokenOwnerRecord(connection, address);
+    return new TokenOwnerRecordHelper(
+      realm,
+      new PDASigner(data.account.governingTokenOwner),
+      data.account.governingTokenMint.equals(realm.communityMint.address)
+        ? 'community'
+        : 'council',
+      data
+    );
   }
 }

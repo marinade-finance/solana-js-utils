@@ -25,7 +25,6 @@ import { SignerHelper, WalletSignerHelper } from '../../signer';
 
 export class RealmHelper {
   private constructor(
-    public readonly address: PublicKey,
     public readonly provider: Provider,
     public readonly communityMint: MintHelper,
     public readonly communityWeightAddin: PublicKey | undefined,
@@ -33,6 +32,10 @@ export class RealmHelper {
     public readonly admin: SignerHelper,
     public data: ProgramAccount<Realm>
   ) {}
+
+  get address() {
+    return this.data.pubkey;
+  }
 
   static async create({
     provider,
@@ -74,7 +77,6 @@ export class RealmHelper {
     await tx.confirm();
 
     return new RealmHelper(
-      realm,
       provider,
       communityMint,
       communityWeightAddin,

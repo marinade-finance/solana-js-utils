@@ -65,9 +65,12 @@ function createGovernanceThresholds(
 export class GovernanceHelper {
   private constructor(
     public readonly realm: RealmHelper,
-    public readonly address: PublicKey,
     public data: ProgramAccount<Governance>
   ) {}
+
+  get address() {
+    return this.data.pubkey;
+  }
 
   get provider() {
     return this.realm.provider;
@@ -101,8 +104,11 @@ export class GovernanceHelper {
     await tokenOwnerRecord.owner.runTx(tx);
     return new GovernanceHelper(
       tokenOwnerRecord.realm,
-      governance,
       await getGovernance(tokenOwnerRecord.provider.connection, governance)
     );
+  }
+
+  async reload() {
+    this.data = await getGovernance(this.provider.connection, this.address);
   }
 }
