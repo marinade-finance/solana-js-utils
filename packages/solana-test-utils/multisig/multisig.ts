@@ -1,12 +1,11 @@
 import { TransactionEnvelope } from '@saberhq/solana-contrib';
-import { Keypair, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
 import { SignerHelper } from '../signer';
 
 export abstract class MultisigHelper implements SignerHelper {
   protected constructor(
-    public readonly members: Keypair[],
-    public readonly includeWallet: boolean,
+    public readonly members: SignerHelper[],
     public readonly threshold: BN
   ) {}
   async runTx(tx: TransactionEnvelope): Promise<void> {

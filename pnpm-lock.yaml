@@ -63,6 +63,7 @@ importers:
       '@saberhq/anchor-contrib': ^1.14.4
       '@saberhq/solana-contrib': ^1.14.4
       '@saberhq/token-utils': ^1.14.4
+      '@solana/spl-governance': ^0.3.13
       '@solana/web3.js': ^1.54.0
       '@types/bn.js': ^5.1.0
       '@types/mz': ^2.7.4
@@ -92,6 +93,7 @@ importers:
       '@saberhq/anchor-contrib': 1.14.4_uo2propxjomjlezazyoqcc4sbi
       '@saberhq/solana-contrib': 1.14.4_oovnkosm3wpmc3jegle7i6xhya
       '@saberhq/token-utils': 1.14.4_d7wwde3uqzh2grbwcuwhvc3rjq
+      '@solana/spl-governance': 0.3.13
       '@solana/web3.js': 1.56.2
       '@types/bn.js': 5.1.1
       '@types/mz': 2.7.4
@@ -976,7 +978,6 @@ packages:
       - bufferutil
       - encoding
       - utf-8-validate
-    dev: false
 
   /@solana/spl-token/0.1.8_bvfty7k7s7a7kmlylrehshe3ra:
     resolution: {integrity: sha512-LZmYCKcPQDtJgecvWOgT/cnoIQPWjdH+QVyzPcFvyDUiT0DiRjZaam4aqNUyvchLFhzgunv3d9xOoyE34ofdoQ==}
@@ -1081,7 +1082,6 @@ packages:
     resolution: {integrity: sha512-pqr857jrp2kPuO9uRjZ3PwnJTjoQy+fcdxvBTvHm6dkmEL9q+hDD/2j/0ELOBPtPnS8LjCX0gI9nbl8lVkadpg==}
     dependencies:
       '@types/node': 18.7.14
-    dev: false
 
   /@types/bn.js/5.1.1:
     resolution: {integrity: sha512-qNrYbZqMx0uJAfKnKclPh+dTwK33KfLHYqtyODwd5HnXOjnkhc4qgn3BrK6RWyGZm5+sIFE7Q7Vz6QQtJB7w7g==}
@@ -1529,7 +1529,6 @@ packages:
 
   /bignumber.js/9.1.0:
     resolution: {integrity: sha512-4LwHK4nfDOraBCtst+wOWIHbu1vhvAPJK8g8nROd4iuc3PSEjWif/qwbkh8jwCJz6yDBvtU4KPynETgrfh7y3A==}
-    dev: false
 
   /bindings/1.5.0:
     resolution: {integrity: sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==}
@@ -1546,7 +1545,6 @@ packages:
       bn.js: 5.2.1
       bs58: 4.0.1
       text-encoding-utf-8: 1.0.2
-    dev: false
 
   /borsh/0.7.0:
     resolution: {integrity: sha512-CLCsZGIBCFnPtkNnieW/a8wmreDmfUtjU2m9yHrzPXIlNbqVs0AQrSatSG6vdNYUqdc83tkQi2eHfF98ubzQLA==}
@@ -4076,7 +4074,6 @@ packages:
 
   /superstruct/0.15.5:
     resolution: {integrity: sha512-4AOeU+P5UuE/4nOUkmcQdW5y7i9ndt1cQd/3iUe+LTz3RxESf/W/5lg4B74HbDMMv8PHnPnGCQFH45kBcrQYoQ==}
-    dev: false
 
   /superstruct/0.16.0:
     resolution: {integrity: sha512-IDQtwnnlaan1NhuHqyD/U11lROYvCQ79JyfwlFU9xEVHzqV/Ys/RrwmHPCG0CVH/1g0BuodEjH1msxK2UHxehA==}
