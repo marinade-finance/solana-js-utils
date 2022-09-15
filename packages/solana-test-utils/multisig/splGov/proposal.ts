@@ -145,7 +145,7 @@ export class ProposalHelper {
             new TransactionInstruction({
               keys: i.accounts,
               programId: i.programId,
-              data: Buffer.from(i.data.buffer),
+              data: Buffer.from(i.data),
             })
         )
       ),
