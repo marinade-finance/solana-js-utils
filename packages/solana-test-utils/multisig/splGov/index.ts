@@ -118,17 +118,17 @@ export class SplGovHelper extends MultisigHelper {
       });
     }
 
-    const tokenOwnerRecords = await Promise.all(
-      members.map(async member => {
-        const tokenOwnerRecord = await TokenOwnerRecordHelper.create({
-          realm: governance!.realm,
-          owner: member,
-          side: 'community',
-        });
-        await tokenOwnerRecord.deposit(new BN(1));
-        return tokenOwnerRecord;
-      })
-    );
+    const tokenOwnerRecords: TokenOwnerRecordHelper[] = [];
+    for (const member of members) {
+      const tokenOwnerRecord = await TokenOwnerRecordHelper.create({
+        realm: governance!.realm,
+        owner: member,
+        side: 'community',
+      });
+      await tokenOwnerRecord.deposit(new BN(1));
+      tokenOwnerRecords.push(tokenOwnerRecord);
+    }
+
     return new SplGovHelper(threshold, governance!, tokenOwnerRecords);
   }
 }
