@@ -1,11 +1,13 @@
 import { TransactionEnvelope } from '@saberhq/solana-contrib';
 import {
   createInstructionData,
+  getGovernanceAccount,
   getProposal,
   getProposalTransactionAddress,
   ProgramAccount,
   PROGRAM_VERSION_V2,
   Proposal,
+  ProposalTransaction,
   Vote,
   VoteChoice,
   VoteKind,
@@ -16,7 +18,7 @@ import {
   withInsertTransaction,
   withSignOffProposal,
 } from '@solana/spl-governance';
-import { Connection, PublicKey } from '@solana/web3.js';
+import { Connection, PublicKey, TransactionInstruction } from '@solana/web3.js';
 import { GovernanceHelper } from './governance';
 import { SPL_GOVERNANCE_ID } from './id';
 import { TokenOwnerRecordHelper } from './tokenOwnerRecord';
@@ -117,6 +119,18 @@ export class ProposalHelper {
     governance: GovernanceHelper;
   }) {
     const data = await getProposal(governance.provider.connection, address);
+    const proposalTransaction = await getProposalTransactionAddress(
+      SPL_GOVERNANCE_ID,
+      PROGRAM_VERSION_V2,
+      address,
+      0,
+      0
+    );
+    const proposalTransactionData = await getGovernanceAccount(
+      governance.provider.connection,
+      proposalTransaction,
+      ProposalTransaction
+    );
     return new ProposalHelper(
       governance,
       await TokenOwnerRecordHelper.load({
@@ -124,14 +138,18 @@ export class ProposalHelper {
         address: data.account.tokenOwnerRecord,
         realm: governance.realm,
       }),
-      new TransactionEnvelope(governance.provider, []), // TODO
-      await getProposalTransactionAddress(
-        SPL_GOVERNANCE_ID,
-        PROGRAM_VERSION_V2,
-        address,
-        0,
-        0
+      new TransactionEnvelope(
+        governance.provider,
+        proposalTransactionData.account.instructions.map(
+          i =>
+            new TransactionInstruction({
+              keys: i.accounts,
+              programId: i.programId,
+              data: Buffer.from(i.data.buffer),
+            })
+        )
       ),
+      proposalTransaction,
       data
     );
   }
