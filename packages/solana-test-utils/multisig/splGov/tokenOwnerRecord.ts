@@ -70,7 +70,7 @@ export class TokenOwnerRecordHelper {
 
   async deposit(amount: BN) {
     const tx = new TransactionEnvelope(this.provider, []);
-    this.mint.mintTo({
+    await this.mint.mintTo({
       amount,
     });
     await withDepositGoverningTokens(
