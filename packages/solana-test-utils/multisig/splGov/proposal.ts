@@ -141,7 +141,7 @@ export class ProposalHelper {
     voterWeightRecord,
   }: {
     tokenOwnerRecord: TokenOwnerRecordHelper;
-    voterWeightRecord: PublicKey;
+    voterWeightRecord?: PublicKey;
   }) {
     const tx = new TransactionEnvelope(tokenOwnerRecord.provider, []);
     await withCastVote(

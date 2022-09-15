@@ -1,4 +1,4 @@
-import { Provider, TransactionEnvelope } from '@saberhq/solana-contrib';
+import { Provider, sleep, TransactionEnvelope } from '@saberhq/solana-contrib';
 import { getProposalsByGovernance, Governance } from '@solana/spl-governance';
 import { PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
@@ -47,6 +47,14 @@ export class SplGovHelper extends MultisigHelper {
     if (!proposal) {
       throw new Error(`Unknown proposal ${address.toBase58()}`);
     }
+    // Cast all votes
+    for (const tokenOwnerRecord of this.tokenOwnerRecords) {
+      await proposal.castVote({
+        tokenOwnerRecord,
+      });
+    }
+
+    await sleep(1000);
     await proposal.execute();
   }
 
@@ -111,13 +119,15 @@ export class SplGovHelper extends MultisigHelper {
     }
 
     const tokenOwnerRecords = await Promise.all(
-      members.map(member =>
-        TokenOwnerRecordHelper.create({
+      members.map(async member => {
+        const tokenOwnerRecord = await TokenOwnerRecordHelper.create({
           realm: governance!.realm,
           owner: member,
           side: 'community',
-        })
-      )
+        });
+        await tokenOwnerRecord.deposit(new BN(1));
+        return tokenOwnerRecord;
+      })
     );
     return new SplGovHelper(threshold, governance!, tokenOwnerRecords);
   }
