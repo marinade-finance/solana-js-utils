@@ -1,15 +1,22 @@
 import { Provider, sleep, TransactionEnvelope } from '@saberhq/solana-contrib';
 import { getProposalsByGovernance, Governance } from '@solana/spl-governance';
-import { PublicKey } from '@solana/web3.js';
+import { Keypair, PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
 import { MintHelper } from '../../mint';
-import { SignerHelper, WalletSignerHelper } from '../../signer';
+import {
+  KeypairSignerHelper,
+  SignerHelper,
+  WalletSignerHelper,
+} from '../../signer';
 import { MultisigHelper } from '../multisig';
 import { GovernanceHelper } from './governance';
 import { SPL_GOVERNANCE_ID } from './id';
 import { ProposalHelper } from './proposal';
 import { RealmHelper } from './realm';
-import { TokenOwnerRecordHelper } from './tokenOwnerRecord';
+import {
+  TokenOwnerRecordHelper,
+  TokenOwnerRecordSide,
+} from './tokenOwnerRecord';
 
 export * from './realm';
 export * from './governance';
@@ -96,11 +103,13 @@ export class SplGovHelper extends MultisigHelper {
     members = [new WalletSignerHelper(provider.wallet)],
     threshold = new BN(1),
     governance,
+    side,
   }: {
     provider: Provider;
     members?: SignerHelper[];
     threshold?: BN;
     governance?: GovernanceHelper;
+    side: TokenOwnerRecordSide;
   }) {
     if (!governance) {
       const realm = await RealmHelper.create({
@@ -108,13 +117,15 @@ export class SplGovHelper extends MultisigHelper {
         communityMint: await MintHelper.create({ provider }),
         councilMint: await MintHelper.create({ provider }),
       });
-      const councilTokenOwnerRecord = await TokenOwnerRecordHelper.create({
+      const tmpUser = new Keypair();
+      const tmpTokenOwnerRecord = await TokenOwnerRecordHelper.create({
         realm,
         side: 'council',
+        owner: new KeypairSignerHelper(tmpUser),
       });
-      await councilTokenOwnerRecord.deposit(new BN(1));
+      await tmpTokenOwnerRecord.deposit(new BN(1));
       governance = await GovernanceHelper.create({
-        tokenOwnerRecord: councilTokenOwnerRecord,
+        tokenOwnerRecord: tmpTokenOwnerRecord,
       });
     }
 
@@ -123,7 +134,7 @@ export class SplGovHelper extends MultisigHelper {
       const tokenOwnerRecord = await TokenOwnerRecordHelper.create({
         realm: governance!.realm,
         owner: member,
-        side: 'council',
+        side,
       });
       await tokenOwnerRecord.deposit(new BN(1));
       tokenOwnerRecords.push(tokenOwnerRecord);

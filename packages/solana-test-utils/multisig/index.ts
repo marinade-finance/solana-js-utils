@@ -4,7 +4,7 @@ import BN from 'bn.js';
 import { SignerHelper } from '../signer';
 import { GokiHelper } from './goki';
 import { MultisigHelper } from './multisig';
-import { SplGovHelper } from './splGov';
+import { SplGovHelper, TokenOwnerRecordSide } from './splGov';
 
 export { MultisigHelper } from './multisig';
 export { GokiHelper } from './goki';
@@ -15,6 +15,7 @@ export interface MultisigFacotry {
     provider: Provider;
     members?: SignerHelper[];
     threshold?: BN;
+    side?: TokenOwnerRecordSide;
   }) => Promise<MultisigHelper>;
 }
 
@@ -30,11 +31,12 @@ export const MULTISIG_FACTORIES: MultisigFacotry[] = [
   },
   {
     name: 'Spl-gov',
-    create: ({ provider, members, threshold }) =>
+    create: ({ provider, members, threshold, side = 'council' }) =>
       SplGovHelper.create({
         provider,
         members,
         threshold,
+        side,
       }),
   },
 ];

@@ -58,9 +58,7 @@ export class TokenOwnerRecordHelper {
       mint.address,
       realm.provider.wallet.publicKey
     );
-    if (!(await realm.provider.getAccountInfo(tokenOwnerRecord))) {
-      await owner.runTx(tx);
-    }
+    await owner.runTx(tx);
 
     return new TokenOwnerRecordHelper(
       realm,
