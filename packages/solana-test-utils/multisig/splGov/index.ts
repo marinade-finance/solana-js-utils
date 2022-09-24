@@ -63,8 +63,11 @@ export class SplGovHelper extends MultisigHelper {
       await proposal.castVote({
         tokenOwnerRecord,
       });
+      await proposal.reload();
+      if (proposal.data.account.state === ProposalState.Succeeded) {
+        break;
+      }
     }
-    await proposal.reload();
     if (proposal.data.account.state !== ProposalState.Succeeded) {
       throw new Error(
         `Yes votes ${proposal.data.account.getYesVoteCount().toNumber()} / ${
