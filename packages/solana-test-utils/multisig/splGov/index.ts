@@ -1,5 +1,9 @@
 import { Provider, sleep, TransactionEnvelope } from '@saberhq/solana-contrib';
-import { getProposalsByGovernance, Governance } from '@solana/spl-governance';
+import {
+  getProposalsByGovernance,
+  Governance,
+  ProposalState,
+} from '@solana/spl-governance';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
 import { MintHelper } from '../../mint';
@@ -60,8 +64,19 @@ export class SplGovHelper extends MultisigHelper {
         tokenOwnerRecord,
       });
     }
+    await proposal.reload();
+    if (proposal.data.account.state !== ProposalState.Succeeded) {
+      throw new Error(
+        `Yes votes ${proposal.data.account.getYesVoteCount().toNumber()} / ${
+          (
+            await proposal.provider.connection.getTokenSupply(
+              proposal.data.account.governingTokenMint
+            )
+          ).value.amount
+        }`
+      );
+    }
 
-    await sleep(1000);
     await proposal.execute();
   }
 
@@ -123,7 +138,6 @@ export class SplGovHelper extends MultisigHelper {
         side: 'council',
         owner: new KeypairSignerHelper(tmpUser),
       });
-      await tmpTokenOwnerRecord.deposit(new BN(1));
       governance = await GovernanceHelper.create({
         tokenOwnerRecord: tmpTokenOwnerRecord,
       });
@@ -136,7 +150,7 @@ export class SplGovHelper extends MultisigHelper {
         owner: member,
         side,
       });
-      await tokenOwnerRecord.deposit(new BN(1));
+      await tokenOwnerRecord.deposit(new BN(1000));
       tokenOwnerRecords.push(tokenOwnerRecord);
     }
 

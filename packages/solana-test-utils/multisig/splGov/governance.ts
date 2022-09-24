@@ -89,9 +89,9 @@ export class GovernanceHelper {
       tokenOwnerRecord.realm.address,
       undefined,
       new GovernanceConfig({
-        ...createGovernanceThresholds(PROGRAM_VERSION_V2, 50),
+        ...createGovernanceThresholds(PROGRAM_VERSION_V2, 40),
         councilVoteTipping: VoteTipping.Early,
-        minCommunityTokensToCreateProposal: new BN(0),
+        minCommunityTokensToCreateProposal: new BN(1),
         minInstructionHoldUpTime: 0,
         maxVotingTime: 3600,
         minCouncilTokensToCreateProposal: new BN(1),

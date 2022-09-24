@@ -205,4 +205,8 @@ export class ProposalHelper {
     const r = await tx.confirm();
     return r.response.meta?.logMessages;
   }
+
+  async reload() {
+    this.data = await getProposal(this.provider.connection, this.address);
+  }
 }
