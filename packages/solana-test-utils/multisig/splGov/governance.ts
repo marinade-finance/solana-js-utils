@@ -66,13 +66,7 @@ export class GovernanceHelper {
   private constructor(
     public readonly realm: RealmHelper,
     public data: ProgramAccount<Governance>
-  ) {
-    if (data.account.config.minInstructionHoldUpTime !== 0) {
-      throw new Error(
-        `Holdup time is ${data.account.config.minInstructionHoldUpTime}`
-      );
-    }
-  }
+  ) {}
 
   get address() {
     return this.data.pubkey;

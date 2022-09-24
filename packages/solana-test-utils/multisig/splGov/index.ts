@@ -80,6 +80,8 @@ export class SplGovHelper extends MultisigHelper {
       );
     }
 
+    await sleep(1000);
+
     await proposal.execute();
   }
 

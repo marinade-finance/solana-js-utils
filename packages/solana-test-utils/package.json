@@ -1,6 +1,6 @@
 {
   "name": "@marinade.finance/solana-test-utils",
-  "version": "0.0.30",
+  "version": "0.0.31",
   "description": "Common code for testing solana related typescript",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
