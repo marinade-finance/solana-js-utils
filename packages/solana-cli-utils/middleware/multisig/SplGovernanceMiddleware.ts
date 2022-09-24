@@ -133,6 +133,10 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
       undefined,
       tokenOwnerRecord
     );
+
+    if (!(this.proposer instanceof PublicKey)) {
+      tx.addSigners(this.proposer);
+    }
     return tx;
   }
 
