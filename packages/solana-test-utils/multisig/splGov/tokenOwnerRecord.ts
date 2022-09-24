@@ -58,7 +58,7 @@ export class TokenOwnerRecordHelper {
       mint.address,
       realm.provider.wallet.publicKey
     );
-    await owner.runTx(tx);
+    await tx.confirm();
 
     return new TokenOwnerRecordHelper(
       realm,

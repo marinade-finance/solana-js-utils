@@ -101,7 +101,7 @@ export class GovernanceHelper {
       tokenOwnerRecord.provider.wallet.publicKey
     );
 
-    await tokenOwnerRecord.owner.runTx(tx);
+    await tx.confirm();
     return new GovernanceHelper(
       tokenOwnerRecord.realm,
       await getGovernance(tokenOwnerRecord.provider.connection, governance)
