@@ -21,7 +21,10 @@ import {
 import { Connection, PublicKey, TransactionInstruction } from '@solana/web3.js';
 import { GovernanceHelper } from './governance';
 import { SPL_GOVERNANCE_ID } from './id';
-import { TokenOwnerRecordHelper } from './tokenOwnerRecord';
+import {
+  TokenOwnerRecordHelper,
+  TokenOwnerRecordSide,
+} from './tokenOwnerRecord';
 
 export class ProposalHelper {
   private constructor(
@@ -46,12 +49,14 @@ export class ProposalHelper {
     name,
     descriptionLink,
     executable,
+    side,
   }: {
     ownerRecord: TokenOwnerRecordHelper;
     governance: GovernanceHelper;
     name: string;
     descriptionLink: string;
     executable?: TransactionEnvelope;
+    side: TokenOwnerRecordSide;
   }) {
     const tx = new TransactionEnvelope(ownerRecord.provider, []);
     const proposal = await withCreateProposal(
@@ -64,7 +69,9 @@ export class ProposalHelper {
       name,
       descriptionLink,
       // ownerRecord.mint.address,
-      governance.realm.communityMint.address,
+      side === 'community'
+        ? governance.realm.communityMint.address
+        : governance.realm.councilMint.address,
       ownerRecord.owner.authority,
       0,
       VoteType.SINGLE_CHOICE,

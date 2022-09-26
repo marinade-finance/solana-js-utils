@@ -33,7 +33,8 @@ export class SplGovHelper extends MultisigHelper {
   private constructor(
     threshold: BN,
     public readonly governance: GovernanceHelper,
-    public readonly tokenOwnerRecords: TokenOwnerRecordHelper[]
+    public readonly tokenOwnerRecords: TokenOwnerRecordHelper[],
+    public readonly side: TokenOwnerRecordSide
   ) {
     super(
       tokenOwnerRecords.map(r => r.owner),
@@ -48,6 +49,7 @@ export class SplGovHelper extends MultisigHelper {
       name: Math.random().toString(),
       descriptionLink: '',
       executable: tx,
+      side: this.side,
     });
     this.proposals.push(proposal);
     return proposal.address;
@@ -159,6 +161,6 @@ export class SplGovHelper extends MultisigHelper {
       tokenOwnerRecords.push(tokenOwnerRecord);
     }
 
-    return new SplGovHelper(threshold, governance!, tokenOwnerRecords);
+    return new SplGovHelper(threshold, governance!, tokenOwnerRecords, side);
   }
 }
