@@ -86,12 +86,20 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
       this.rentPayer instanceof PublicKey
         ? this.rentPayer
         : this.rentPayer.publicKey;
+    const mint = this.community
+      ? this.realm.account.communityMint
+      : this.realm.account.config.councilMint!;
     const tokenOwnerRecord = await getTokenOwnerRecordAddress(
       SplGovernanceMiddleware.PROG_ID,
       this.goverance.account.realm,
-      this.realm.account.config.councilMint!,
+      mint,
       proposerKey
     );
+    if (!(await this.provider.getAccountInfo(tokenOwnerRecord))) {
+      throw new Error(
+        `No token owner record for proposer ${proposerKey.toBase58()} and mint ${mint.toBase58()}`
+      );
+    }
     const tx = new TransactionEnvelope(inner.provider, []);
     const proposal = await withCreateProposal(
       tx.instructions,
@@ -102,9 +110,7 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
       tokenOwnerRecord,
       Math.random().toString(), // TODO
       '',
-      this.community
-        ? this.realm.account.communityMint
-        : this.realm.account.config.councilMint!,
+      mint,
       proposerKey,
       this.goverance.account.proposalCount,
       VoteType.SINGLE_CHOICE,

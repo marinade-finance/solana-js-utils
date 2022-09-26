@@ -11,17 +11,18 @@ export { GokiHelper } from './goki';
 
 export interface MultisigFacotry {
   name: string;
+  side: TokenOwnerRecordSide;
   create: (config: {
     provider: Provider;
     members?: SignerHelper[];
     threshold?: BN;
-    side?: TokenOwnerRecordSide;
   }) => Promise<MultisigHelper>;
 }
 
 export const MULTISIG_FACTORIES: MultisigFacotry[] = [
   {
     name: 'Goki',
+    side: 'council',
     create: ({ provider, members, threshold }) =>
       GokiHelper.create({
         members,
@@ -31,22 +32,24 @@ export const MULTISIG_FACTORIES: MultisigFacotry[] = [
   },
   {
     name: 'Spl-gov-council',
-    create: ({ provider, members, threshold, side = 'council' }) =>
+    side: 'council',
+    create: ({ provider, members, threshold }) =>
       SplGovHelper.create({
         provider,
         members,
         threshold,
-        side,
+        side: 'council',
       }),
   },
   {
     name: 'Spl-gov-community',
-    create: ({ provider, members, threshold, side = 'community' }) =>
+    side: 'community',
+    create: ({ provider, members, threshold }) =>
       SplGovHelper.create({
         provider,
         members,
         threshold,
-        side,
+        side: 'community',
       }),
   },
 ];
