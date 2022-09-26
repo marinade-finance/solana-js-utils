@@ -30,8 +30,18 @@ export const MULTISIG_FACTORIES: MultisigFacotry[] = [
       }),
   },
   {
-    name: 'Spl-gov',
+    name: 'Spl-gov-council',
     create: ({ provider, members, threshold, side = 'council' }) =>
+      SplGovHelper.create({
+        provider,
+        members,
+        threshold,
+        side,
+      }),
+  },
+  {
+    name: 'Spl-gov-community',
+    create: ({ provider, members, threshold, side = 'community' }) =>
       SplGovHelper.create({
         provider,
         members,

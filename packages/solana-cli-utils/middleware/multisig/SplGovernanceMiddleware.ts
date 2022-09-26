@@ -26,7 +26,8 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
     public readonly proposer: Signer | PublicKey,
     public readonly rentPayer: Signer | PublicKey,
     public readonly approvers: (Signer | PublicKey)[],
-    public readonly logOnly: boolean
+    public readonly logOnly: boolean,
+    public readonly community: boolean
   ) {
     super();
   }
@@ -42,6 +43,7 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
     rentPayer = provider.wallet.publicKey,
     approvers = [],
     logOnly = false,
+    community = false,
   }: {
     provider: Provider;
     account: PublicKey;
@@ -49,6 +51,7 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
     rentPayer?: Signer | PublicKey;
     approvers?: (Signer | PublicKey)[];
     logOnly?: boolean;
+    community?: boolean;
   }) {
     const goverance = await getGovernance(provider.connection, account);
     const realm = await getRealm(provider.connection, goverance.account.realm);
@@ -59,7 +62,8 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
       proposer,
       rentPayer,
       approvers,
-      logOnly
+      logOnly,
+      community
     );
   }
 
@@ -98,7 +102,9 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
       tokenOwnerRecord,
       Math.random().toString(), // TODO
       '',
-      this.realm.account.config.councilMint!,
+      this.community
+        ? this.realm.account.communityMint
+        : this.realm.account.config.councilMint!,
       proposerKey,
       this.goverance.account.proposalCount,
       VoteType.SINGLE_CHOICE,

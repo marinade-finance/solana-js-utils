@@ -15,6 +15,7 @@ export async function installMultisigMiddleware({
   proposer,
   rentPayer,
   logOnly,
+  community,
 }: {
   middleware: Middleware[];
   goki: GokiSDK;
@@ -22,6 +23,7 @@ export async function installMultisigMiddleware({
   proposer?: Keypair;
   rentPayer?: Keypair;
   logOnly?: boolean;
+  community?: boolean;
 }) {
   // Prevent doublication of multisig
   for (const m of middleware) {
@@ -50,6 +52,7 @@ export async function installMultisigMiddleware({
           proposer,
           rentPayer,
           logOnly,
+          community,
         })
       );
     }
