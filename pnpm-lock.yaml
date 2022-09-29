@@ -20,7 +20,7 @@ importers:
   packages/solana-cli-utils:
     specifiers:
       '@gokiprotocol/client': ^0.11.1
-      '@marinade.finance/kedgeree-sdk': ^1.0.1
+      '@marinade.finance/kedgeree-sdk': ^1.0.2
       '@project-serum/anchor': '0.24'
       '@saberhq/anchor-contrib': ^1.14.4
       '@saberhq/solana-contrib': ^1.14.4
@@ -38,7 +38,7 @@ importers:
       jsbi: ^4.3.0
       mz: ^2.7.0
     dependencies:
-      '@marinade.finance/kedgeree-sdk': 1.0.1_j5nzmglqxfqzguphxhlkcacytm
+      '@marinade.finance/kedgeree-sdk': 1.0.2_j5nzmglqxfqzguphxhlkcacytm
       '@solana/spl-governance': 0.3.14
       expand-tilde: 2.0.2
       mz: 2.7.0
@@ -61,7 +61,7 @@ importers:
   packages/solana-test-utils:
     specifiers:
       '@gokiprotocol/client': ^0.11.1
-      '@marinade.finance/solana-cli-utils': workspace:^0.0.37
+      '@marinade.finance/solana-cli-utils': workspace:^0.0.38
       '@project-serum/anchor': '0.24'
       '@quarryprotocol/quarry-sdk': ^5.2.0
       '@saberhq/anchor-contrib': ^1.14.4
@@ -770,8 +770,8 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.14
     dev: false
 
-  /@marinade.finance/kedgeree-sdk/1.0.1_j5nzmglqxfqzguphxhlkcacytm:
-    resolution: {integrity: sha512-nYy6SVG2gnNd3ESyq5O9UGNhcQEB8Z5xTR8H/P9Po6vWjLGB1wkbqJHXIc+zEM+CSjgTVtE4vuFMxaLdxX7raA==}
+  /@marinade.finance/kedgeree-sdk/1.0.2_j5nzmglqxfqzguphxhlkcacytm:
+    resolution: {integrity: sha512-wl80XsGCmdOM9dy3SdZ66zJl6fpHQjoBYIlYq5NW8wYkMUpj3bUgTVtpLg0RaP2/pL9TVzdZGHuLwaWo+rgFpw==}
     peerDependencies:
       '@project-serum/anchor': '0.24'
       '@saberhq/anchor-contrib': ^1.14

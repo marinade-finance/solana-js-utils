@@ -1,6 +1,6 @@
 {
   "name": "@marinade.finance/solana-cli-utils",
-  "version": "0.0.37",
+  "version": "0.0.38",
   "description": "Common code for making solana related CLI",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -35,7 +35,7 @@
     "jsbi": "^4.3.0"
   },
   "dependencies": {
-    "@marinade.finance/kedgeree-sdk": "^1.0.1",
+    "@marinade.finance/kedgeree-sdk": "^1.0.2",
     "@solana/spl-governance": "^0.3.13",
     "expand-tilde": "^2.0.2",
     "mz": "^2.7.0"
