@@ -1,6 +1,6 @@
 {
   "name": "@marinade.finance/solana-cli-utils",
-  "version": "0.0.36",
+  "version": "0.0.37",
   "description": "Common code for making solana related CLI",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -27,15 +27,15 @@
   "peerDependencies": {
     "@gokiprotocol/client": "^0.11.1",
     "@project-serum/anchor": "0.24",
-    "@saberhq/anchor-contrib": "^1.14.4",
-    "@saberhq/solana-contrib": "^1.14.4",
-    "@saberhq/token-utils": "^1.14.4",
+    "@saberhq/anchor-contrib": "^1.14",
+    "@saberhq/solana-contrib": "^1.14",
+    "@saberhq/token-utils": "^1.14",
     "@solana/web3.js": "^1.54.0",
     "bn.js": "^5.2.1",
     "jsbi": "^4.3.0"
   },
   "dependencies": {
-    "@marinade.finance/kedgeree-sdk": "^1.0.0",
+    "@marinade.finance/kedgeree-sdk": "^1.0.1",
     "@solana/spl-governance": "^0.3.13",
     "expand-tilde": "^2.0.2",
     "mz": "^2.7.0"

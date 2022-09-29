@@ -65,7 +65,7 @@ export class RealmHelper {
       communityMint.address,
       provider.wallet.publicKey,
       councilMint.address,
-      new MintMaxVoteWeightSource({ value: new BN(1), type: MintMaxVoteWeightSourceType.Absolute }),
+      new MintMaxVoteWeightSource({ value: new BN(1), type: MintMaxVoteWeightSourceType.SupplyFraction }),
       new BN(0),
       new GoverningTokenConfigAccountArgs({
         voterWeightAddin: communityWeightAddin,
