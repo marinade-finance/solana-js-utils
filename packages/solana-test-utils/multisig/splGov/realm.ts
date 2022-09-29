@@ -4,6 +4,7 @@ import {
   GoverningTokenConfigAccountArgs,
   GoverningTokenType,
   MintMaxVoteWeightSource,
+  MintMaxVoteWeightSourceType,
   ProgramAccount,
   PROGRAM_VERSION_V2,
   Realm,
@@ -64,7 +65,7 @@ export class RealmHelper {
       communityMint.address,
       provider.wallet.publicKey,
       councilMint.address,
-      new MintMaxVoteWeightSource({ value: new BN(1) }),
+      new MintMaxVoteWeightSource({ value: new BN(1), type: MintMaxVoteWeightSourceType.Absolute }),
       new BN(0),
       new GoverningTokenConfigAccountArgs({
         voterWeightAddin: communityWeightAddin,
