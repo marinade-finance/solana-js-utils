@@ -89,7 +89,7 @@ export class SplGovHelper extends MultisigHelper {
   }
 
   get authority(): PublicKey {
-    return this.governance.address;
+    return this.governance.authority;
   }
 
   get numTransactions(): BN {
@@ -102,7 +102,7 @@ export class SplGovHelper extends MultisigHelper {
       const proposals = await getProposalsByGovernance(
         this.governance.provider.connection,
         SPL_GOVERNANCE_ID,
-        this.governance.address
+        this.governance.governanceAccount
       );
       for (const proposal of proposals) {
         if (!this.proposals.find(p => p.address.equals(proposal.pubkey))) {

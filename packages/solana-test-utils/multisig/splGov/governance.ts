@@ -69,11 +69,15 @@ export class GovernanceHelper {
   private constructor(
     public readonly realm: RealmHelper,
     public data: ProgramAccount<Governance>,
-    public address: PublicKey
+    public authority: PublicKey
   ) {}
 
   get provider() {
     return this.realm.provider;
+  }
+
+  get governanceAccount() {
+    return this.data.pubkey;
   }
 
   static async create({
@@ -128,6 +132,9 @@ export class GovernanceHelper {
   }
 
   async reload() {
-    this.data = await getGovernance(this.provider.connection, this.data.pubkey);
+    this.data = await getGovernance(
+      this.provider.connection,
+      this.governanceAccount
+    );
   }
 }
