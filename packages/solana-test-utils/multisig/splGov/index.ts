@@ -1,3 +1,4 @@
+import { KedgereeSDK } from '@marinade.finance/kedgeree-sdk';
 import { Provider, sleep, TransactionEnvelope } from '@saberhq/solana-contrib';
 import {
   getProposalsByGovernance,
@@ -121,13 +122,13 @@ export class SplGovHelper extends MultisigHelper {
   }
 
   static async create({
-    provider,
-    members = [new WalletSignerHelper(provider.wallet)],
+    kedgeree,
+    members = [new WalletSignerHelper(kedgeree.provider.wallet)],
     threshold = new BN(1),
     governance,
     side,
   }: {
-    provider: Provider;
+    kedgeree: KedgereeSDK;
     members?: SignerHelper[];
     threshold?: BN;
     governance?: GovernanceHelper;
@@ -135,9 +136,9 @@ export class SplGovHelper extends MultisigHelper {
   }) {
     if (!governance) {
       const realm = await RealmHelper.create({
-        provider,
-        communityMint: await MintHelper.create({ provider }),
-        councilMint: await MintHelper.create({ provider }),
+        provider: kedgeree.provider,
+        communityMint: await MintHelper.create({ provider: kedgeree.provider }),
+        councilMint: await MintHelper.create({ provider: kedgeree.provider }),
       });
       const tmpUser = new Keypair();
       const tmpTokenOwnerRecord = await TokenOwnerRecordHelper.create({
@@ -146,6 +147,7 @@ export class SplGovHelper extends MultisigHelper {
         owner: new KeypairSignerHelper(tmpUser),
       });
       governance = await GovernanceHelper.create({
+        kedgeree,
         tokenOwnerRecord: tmpTokenOwnerRecord,
       });
     }

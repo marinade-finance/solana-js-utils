@@ -1,5 +1,5 @@
 import { GokiSDK } from '@gokiprotocol/client';
-import { Provider } from '@saberhq/solana-contrib';
+import { KedgereeSDK } from '@marinade.finance/kedgeree-sdk';
 import BN from 'bn.js';
 import { SignerHelper } from '../signer';
 import { GokiHelper } from './goki';
@@ -13,7 +13,7 @@ export interface MultisigFacotry {
   name: string;
   side: TokenOwnerRecordSide;
   create: (config: {
-    provider: Provider;
+    kedgeree: KedgereeSDK;
     members?: SignerHelper[];
     threshold?: BN;
   }) => Promise<MultisigHelper>;
@@ -23,19 +23,19 @@ export const MULTISIG_FACTORIES: MultisigFacotry[] = [
   {
     name: 'Goki',
     side: 'council',
-    create: ({ provider, members, threshold }) =>
+    create: ({ kedgeree, members, threshold }) =>
       GokiHelper.create({
         members,
         threshold,
-        goki: GokiSDK.load({ provider }),
+        goki: GokiSDK.load({ provider: kedgeree.provider }),
       }),
   },
   {
     name: 'Spl-gov-council',
     side: 'council',
-    create: ({ provider, members, threshold }) =>
+    create: ({ kedgeree, members, threshold }) =>
       SplGovHelper.create({
-        provider,
+        kedgeree,
         members,
         threshold,
         side: 'council',
@@ -44,9 +44,9 @@ export const MULTISIG_FACTORIES: MultisigFacotry[] = [
   {
     name: 'Spl-gov-community',
     side: 'community',
-    create: ({ provider, members, threshold }) =>
+    create: ({ kedgeree, members, threshold }) =>
       SplGovHelper.create({
-        provider,
+        kedgeree,
         members,
         threshold,
         side: 'community',

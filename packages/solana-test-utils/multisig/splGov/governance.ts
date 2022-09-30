@@ -10,12 +10,15 @@ import {
   Governance,
   ProgramAccount,
   PROGRAM_VERSION_V3,
+  getNativeTreasuryAddress,
 } from '@solana/spl-governance';
 import { PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
 import { SPL_GOVERNANCE_ID } from './id';
 import { RealmHelper } from './realm';
 import { TokenOwnerRecordHelper } from './tokenOwnerRecord';
+import { KedgereeSDK } from '@marinade.finance/kedgeree-sdk';
+import { encode } from '@project-serum/anchor/dist/cjs/utils/bytes/utf8';
 
 function createGovernanceThresholds(
   programVersion: number,
@@ -65,12 +68,9 @@ function createGovernanceThresholds(
 export class GovernanceHelper {
   private constructor(
     public readonly realm: RealmHelper,
-    public data: ProgramAccount<Governance>
+    public data: ProgramAccount<Governance>,
+    public address: PublicKey
   ) {}
-
-  get address() {
-    return this.data.pubkey;
-  }
 
   get provider() {
     return this.realm.provider;
@@ -78,10 +78,12 @@ export class GovernanceHelper {
 
   static async create({
     tokenOwnerRecord,
+    kedgeree,
   }: {
     tokenOwnerRecord: TokenOwnerRecordHelper;
+    kedgeree: KedgereeSDK;
   }) {
-    const tx = new TransactionEnvelope(tokenOwnerRecord.provider, []);
+    let tx = new TransactionEnvelope(tokenOwnerRecord.provider, []);
     const governance = await withCreateGovernance(
       tx.instructions,
       SPL_GOVERNANCE_ID,
@@ -101,14 +103,31 @@ export class GovernanceHelper {
       tokenOwnerRecord.provider.wallet.publicKey
     );
 
+    const { tx: createPDAInfoTx, key: governanceWallet } =
+      await kedgeree.createPDAInfo({
+        owner: SPL_GOVERNANCE_ID,
+        seeds: [encode('native-treasury'), governance.toBytes()],
+      });
+    tx = tx.combine(createPDAInfoTx);
+    if (
+      !governanceWallet.equals(
+        await getNativeTreasuryAddress(SPL_GOVERNANCE_ID, governance)
+      )
+    ) {
+      throw new Error(
+        'Can not compute governance wallet. Check spl-gov sdk version'
+      );
+    }
+
     await tx.confirm();
     return new GovernanceHelper(
       tokenOwnerRecord.realm,
-      await getGovernance(tokenOwnerRecord.provider.connection, governance)
+      await getGovernance(tokenOwnerRecord.provider.connection, governance),
+      governanceWallet
     );
   }
 
   async reload() {
-    this.data = await getGovernance(this.provider.connection, this.address);
+    this.data = await getGovernance(this.provider.connection, this.data.pubkey);
   }
 }
