@@ -51,36 +51,17 @@ export class GokiHelper implements MultisigHelper {
   }
 
   async runTx(inner: TransactionEnvelope): Promise<TransactionReceipt> {
-    const { tx: createTx, transactionKey } =
+    const { tx, transactionKey } =
       await this.smartWalletWrapper.newTransactionFromEnvelope({
         tx: inner,
         proposer: this.members[0].authority,
         payer: this.goki.provider.walletKey,
       });
-    let tx = createTx;
-    for (let i = 0; i < this.threshold; i++) {
-      tx = tx.combine(
-        this.smartWalletWrapper.approveTransaction(
-          transactionKey,
-          this.members[i].authority
-        )
-      );
-      this.members[i].signTx(tx);
-    }
-    if (this.threshold < 1) {
-      this.members[0].signTx(tx);
-    }
-    tx = tx.combine(
-      await this.smartWalletWrapper.executeTransaction({
-        transactionKey,
-        owner: this.members[0].authority,
-      })
+    await this.members[0].runTx(tx);
+    return await this.executeTransaction(
+      transactionKey,
+      await this.smartWalletWrapper.fetchTransaction(transactionKey)
     );
-    let result: TransactionReceipt;
-    for (const part of tx.partition()) {
-      result = await part.confirm();
-    }
-    return result!; // return the last one containing executeTransaction instuction
   }
 
   async executeAllPending(): Promise<TransactionReceipt[]> {
