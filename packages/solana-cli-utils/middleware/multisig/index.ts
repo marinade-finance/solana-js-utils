@@ -63,27 +63,30 @@ export async function installMultisigMiddleware({
   } else {
     const keyInfo = await kedgeree.loadKeyInfo(address);
     if (keyInfo && keyInfo.owner.equals(SplGovernanceMiddleware.PROG_ID)) {
-      const ACCOUNT_GOVERNANCE_SEED = encode('account-governance');
+      const NATIVE_TREASURY_SEED = encode('native-treasury');
       if (
         Buffer.from(
-          keyInfo.seeds.subarray(0, ACCOUNT_GOVERNANCE_SEED.length)
-        ).equals(ACCOUNT_GOVERNANCE_SEED)
+          keyInfo.seeds.subarray(0, NATIVE_TREASURY_SEED.length)
+        ).equals(NATIVE_TREASURY_SEED)
       ) {
         middleware.push(
           await SplGovernanceMiddleware.create({
             provider: goki.provider,
             account: new PublicKey(
               keyInfo.seeds.subarray(
-                ACCOUNT_GOVERNANCE_SEED.length,
-                ACCOUNT_GOVERNANCE_SEED.length + 32
+                NATIVE_TREASURY_SEED.length,
+                NATIVE_TREASURY_SEED.length + 32
               )
             ),
             proposer,
             rentPayer,
             logOnly,
             community,
+            signingBy: address,
           })
         );
+      } else {
+        throw new Error(`Unknown PDA seed scheme ${keyInfo.seeds}`);
       }
     }
   }

@@ -27,7 +27,8 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
     public readonly rentPayer: Signer | PublicKey,
     public readonly approvers: (Signer | PublicKey)[],
     public readonly logOnly: boolean,
-    public readonly community: boolean
+    public readonly community: boolean,
+    public readonly signingBy: PublicKey
   ) {
     super();
   }
@@ -44,6 +45,7 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
     approvers = [],
     logOnly = false,
     community = false,
+    signingBy = account,
   }: {
     provider: Provider;
     account: PublicKey;
@@ -52,6 +54,7 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
     approvers?: (Signer | PublicKey)[];
     logOnly?: boolean;
     community?: boolean;
+    signingBy?: PublicKey;
   }) {
     const goverance = await getGovernance(provider.connection, account);
     const realm = await getRealm(provider.connection, goverance.account.realm);
@@ -63,7 +66,8 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
       rentPayer,
       approvers,
       logOnly,
-      community
+      community,
+      signingBy
     );
   }
 
@@ -154,9 +158,5 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
 
   get programId() {
     return SplGovernanceMiddleware.PROG_ID;
-  }
-
-  get signingBy() {
-    return this.goverance.pubkey;
   }
 }
