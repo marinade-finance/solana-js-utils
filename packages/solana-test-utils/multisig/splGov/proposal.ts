@@ -209,8 +209,7 @@ export class ProposalHelper {
       this.transactionAddress!,
       this.executable!.instructions.map(ix => createInstructionData(ix))
     );
-    const r = await tx.confirm();
-    return r.response.meta?.logMessages;
+    return await tx.confirm();
   }
 
   async reload() {

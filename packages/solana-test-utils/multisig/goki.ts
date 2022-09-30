@@ -1,57 +1,107 @@
 import {
   findTransactionAddress,
   GokiSDK,
+  SmartWalletTransactionData,
   SmartWalletWrapper,
 } from '@gokiprotocol/client';
-import { TransactionEnvelope } from '@saberhq/solana-contrib';
+import {
+  TransactionEnvelope,
+  TransactionReceipt,
+} from '@saberhq/solana-contrib';
 import { PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
 import { SignerHelper, WalletSignerHelper } from '../signer';
 import { MultisigHelper } from './multisig';
 
-export class GokiHelper extends MultisigHelper {
+export class GokiHelper implements MultisigHelper {
   private constructor(
     public readonly goki: GokiSDK,
-    members: SignerHelper[],
-    threshold: BN,
+    public readonly members: SignerHelper[],
     public readonly smartWalletWrapper: SmartWalletWrapper
-  ) {
-    super(members, threshold);
+  ) {}
+
+  signTx(tx: TransactionEnvelope): boolean {
+    throw new Error('Can not sign');
+  }
+
+  get canSign() {
+    return false;
+  }
+
+  get threshold() {
+    return this.smartWalletWrapper.data!.threshold.toNumber();
   }
 
   static async create({
     goki,
     members = [new WalletSignerHelper(goki.provider.wallet)],
-    threshold = new BN(1),
+    threshold = 1,
   }: {
     goki: GokiSDK;
     members?: SignerHelper[];
-    threshold?: BN;
+    threshold?: number;
   }): Promise<GokiHelper> {
     const { smartWalletWrapper, tx } = await goki.newSmartWallet({
       owners: members.map(m => m.authority),
-      threshold,
-      numOwners: members.length + 1,
+      threshold: new BN(threshold),
+      numOwners: members.length,
     });
     await tx.confirm();
-    return new GokiHelper(goki, members, threshold, smartWalletWrapper);
+    return new GokiHelper(goki, members, smartWalletWrapper);
   }
 
-  async createTransaction(inner: TransactionEnvelope): Promise<PublicKey> {
-    const { tx, transactionKey } =
+  async runTx(inner: TransactionEnvelope): Promise<TransactionReceipt> {
+    const { tx: createTx, transactionKey } =
       await this.smartWalletWrapper.newTransactionFromEnvelope({
         tx: inner,
         proposer: this.members[0].authority,
         payer: this.goki.provider.walletKey,
       });
-
-    await this.members[0].runTx(tx);
-    await this.smartWalletWrapper.reloadData();
-    return transactionKey;
+    let tx = createTx;
+    for (let i = 0; i < this.threshold; i++) {
+      tx = tx.combine(
+        this.smartWalletWrapper.approveTransaction(
+          transactionKey,
+          this.members[i].authority
+        )
+      );
+      this.members[i].signTx(tx);
+    }
+    if (this.threshold < 1) {
+      this.members[0].signTx(tx);
+    }
+    tx = tx.combine(
+      await this.smartWalletWrapper.executeTransaction({
+        transactionKey,
+        owner: this.members[0].authority,
+      })
+    );
+    let result: TransactionReceipt;
+    for (const part of tx.partition()) {
+      result = await part.confirm();
+    }
+    return result!; // return the last one containing executeTransaction instuction
   }
 
-  async executeTransaction(address: PublicKey): Promise<void> {
-    const info = await this.smartWalletWrapper.fetchTransaction(address);
+  async executeAllPending(): Promise<TransactionReceipt[]> {
+    await this.smartWalletWrapper.reloadData();
+    const txCount = this.smartWalletWrapper.data!.numTransactions.toNumber();
+    const results: TransactionReceipt[] = [];
+    for (let i = 0; i < txCount; i++) {
+      const info = (await this.smartWalletWrapper.fetchTransactionByIndex(i))!;
+      if (info.executedAt.eqn(-1)) {
+        results.push(
+          await this.executeTransaction(await this.transactionByIndex(i), info)
+        );
+      }
+    }
+    return results;
+  }
+
+  async executeTransaction(
+    address: PublicKey,
+    info: SmartWalletTransactionData
+  ): Promise<TransactionReceipt> {
     let signersLeft =
       this.smartWalletWrapper.data!.threshold.toNumber() -
       info.signers.filter(s => s).length;
@@ -74,8 +124,13 @@ export class GokiHelper extends MultisigHelper {
         owner: this.members[0].authority,
       })
     );
+    this.members[0].signTx(tx);
 
-    await this.members[0].runTx(tx);
+    let result: TransactionReceipt;
+    for (const part of tx.partition()) {
+      result = await part.confirm();
+    }
+    return result!; // return the last one containing executeTransaction instuction
   }
 
   get authority() {
@@ -90,10 +145,10 @@ export class GokiHelper extends MultisigHelper {
     await this.smartWalletWrapper.reloadData();
   }
 
-  async transactionByIndex(index: BN): Promise<PublicKey> {
+  async transactionByIndex(index: number): Promise<PublicKey> {
     const [tx] = await findTransactionAddress(
       this.smartWalletWrapper.key,
-      index.toNumber()
+      index
     );
     return tx;
   }

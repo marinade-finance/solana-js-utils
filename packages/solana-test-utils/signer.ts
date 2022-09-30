@@ -1,14 +1,14 @@
 import {
-  Provider,
   PublicKey,
   TransactionEnvelope,
+  TransactionReceipt,
   Wallet,
 } from '@saberhq/solana-contrib';
 import { Keypair } from '@solana/web3.js';
 
 export interface SignerHelper {
   authority: PublicKey;
-  runTx(tx: TransactionEnvelope): Promise<void>;
+  runTx(tx: TransactionEnvelope): Promise<TransactionReceipt>;
   signTx(tx: TransactionEnvelope): boolean;
   canSign: boolean;
 }
@@ -20,8 +20,8 @@ export class WalletSignerHelper implements SignerHelper {
     return this.wallet.publicKey;
   }
 
-  async runTx(tx: TransactionEnvelope): Promise<void> {
-    await tx.confirm();
+  runTx(tx: TransactionEnvelope): Promise<TransactionReceipt> {
+    return tx.confirm();
   }
 
   signTx(_: TransactionEnvelope): boolean {
@@ -40,9 +40,9 @@ export class KeypairSignerHelper implements SignerHelper {
     return this.keypair.publicKey;
   }
 
-  async runTx(tx: TransactionEnvelope): Promise<void> {
+  runTx(tx: TransactionEnvelope): Promise<TransactionReceipt> {
     this.signTx(tx);
-    await tx.confirm();
+    return tx.confirm();
   }
 
   signTx(tx: TransactionEnvelope): boolean {
@@ -58,7 +58,7 @@ export class KeypairSignerHelper implements SignerHelper {
 export class PDASigner implements SignerHelper {
   constructor(public readonly authority: PublicKey) {}
 
-  runTx(_: TransactionEnvelope): Promise<void> {
+  runTx(_: TransactionEnvelope): Promise<TransactionReceipt> {
     throw new Error('Use another contract to sign PDA');
   }
 
