@@ -73,7 +73,7 @@ export class ProposalHelper {
         ? governance.realm.communityMint.address
         : governance.realm.councilMint.address,
       ownerRecord.owner.authority,
-      0,
+      governance.data.account.proposalCount,
       VoteType.SINGLE_CHOICE,
       ['test'],
       true,
@@ -109,6 +109,7 @@ export class ProposalHelper {
       ownerRecord.address
     );
     await ownerRecord.owner.runTx(tx);
+    await governance.reload();
     return new ProposalHelper(
       governance,
       ownerRecord,
