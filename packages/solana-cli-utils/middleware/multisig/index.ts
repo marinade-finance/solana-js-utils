@@ -1,5 +1,5 @@
 import { GokiSDK } from '@gokiprotocol/client';
-import { Keypair, PublicKey } from '@solana/web3.js';
+import { Keypair, PublicKey, SystemProgram } from '@solana/web3.js';
 import { Middleware } from '..';
 import { GokiMiddleware } from './GokiMiddleware';
 import { MultisigMiddlewareBase } from './MultisigMiddlewareBase';
@@ -36,7 +36,7 @@ export async function installMultisigMiddleware({
     }
   }
   const account = await goki.provider.getAccountInfo(address);
-  if (account) {
+  if (account && !account.accountInfo.owner.equals(SystemProgram.programId)) {
     if (account.accountInfo.owner.equals(goki.programs.SmartWallet.programId)) {
       middleware.push(
         await GokiMiddleware.create({
@@ -62,7 +62,10 @@ export async function installMultisigMiddleware({
     }
   } else {
     const keyInfo = await kedgeree.loadKeyInfo(address);
-    if (keyInfo && keyInfo.owner.equals(SplGovernanceMiddleware.PROG_ID)) {
+    if (!keyInfo) {
+      return;
+    }
+    if (keyInfo.owner.equals(SplGovernanceMiddleware.PROG_ID)) {
       const NATIVE_TREASURY_SEED = encode('native-treasury');
       if (
         Buffer.from(
@@ -88,6 +91,8 @@ export async function installMultisigMiddleware({
       } else {
         throw new Error(`Unknown PDA seed scheme ${keyInfo.seeds}`);
       }
+    } else {
+      throw new Error(`Unknown multisig program ${keyInfo.owner.toBase58()}`);
     }
   }
 }

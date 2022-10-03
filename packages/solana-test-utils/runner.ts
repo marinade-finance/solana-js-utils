@@ -2,6 +2,7 @@ import { SignerWallet, sleep, SolanaProvider } from '@saberhq/solana-contrib';
 import { Connection, PublicKey } from '@solana/web3.js';
 import { spawn } from 'child_process';
 import { parseKeypair } from '@marinade.finance/solana-cli-utils';
+import { fs } from 'mz';
 
 export async function run(bpfPrograms: { address: PublicKey; path: string }[]) {
   let args: string[] = [];
@@ -12,6 +13,7 @@ export async function run(bpfPrograms: { address: PublicKey; path: string }[]) {
   const testValidator = spawn('solana-test-validator', args);
 
   testValidator.stderr.on('data', data => console.log(data.toString('latin1')));
+  await fs.rmdir(process.cwd() + '/test-ledger');
   try {
     // testValidator.on('close', code => console.log(`Close ${code}`));
     const provider = SolanaProvider.init({
