@@ -13,7 +13,7 @@ export async function run(bpfPrograms: { address: PublicKey; path: string }[]) {
   const testValidator = spawn('solana-test-validator', args);
 
   testValidator.stderr.on('data', data => console.log(data.toString('latin1')));
-  await fs.rmdir(process.cwd() + '/test-ledger');
+  await fs.rmdir(process.cwd() + '/test-ledger', { recursive: true });
   try {
     // testValidator.on('close', code => console.log(`Close ${code}`));
     const provider = SolanaProvider.init({
