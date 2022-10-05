@@ -100,13 +100,13 @@ export class SplGovHelper implements MultisigHelper {
   ): Promise<TransactionReceipt[]> {
     // Cast votes
     for (const tokenOwnerRecord of this.tokenOwnerRecords) {
+      if (proposal.data.account.state === ProposalState.Succeeded) {
+        break;
+      }
       await proposal.castVote({
         tokenOwnerRecord,
       });
       await proposal.reload();
-      if (proposal.data.account.state === ProposalState.Succeeded) {
-        break;
-      }
     }
     if (proposal.data.account.state !== ProposalState.Succeeded) {
       throw new Error(

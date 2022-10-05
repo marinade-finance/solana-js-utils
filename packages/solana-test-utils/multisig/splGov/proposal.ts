@@ -30,7 +30,7 @@ export class ProposalHelper {
   private constructor(
     public readonly governance: GovernanceHelper,
     public readonly ownerRecord: TokenOwnerRecordHelper,
-    public readonly executable: TransactionEnvelope | undefined,
+    public readonly executable: TransactionEnvelope,
     public data: ProgramAccount<Proposal>
   ) {}
 
@@ -47,7 +47,7 @@ export class ProposalHelper {
     governance,
     name,
     descriptionLink,
-    executable,
+    executable = new TransactionEnvelope(governance.provider, []),
     side,
   }: {
     ownerRecord: TokenOwnerRecordHelper;
@@ -79,25 +79,23 @@ export class ProposalHelper {
       ownerRecord.provider.wallet.publicKey,
       undefined
     );
-    if (executable) {
-      let index = 0;
-      for (const instruction of executable.instructions) {
-        await withInsertTransaction(
-          tx.instructions,
-          SPL_GOVERNANCE_ID,
-          PROGRAM_VERSION_V2,
-          governance.governanceAccount,
-          proposal,
-          ownerRecord.address,
-          ownerRecord.owner.authority,
-          index,
-          0,
-          0,
-          [createInstructionData(instruction)],
-          ownerRecord.provider.wallet.publicKey
-        );
-        index++;
-      }
+    let index = 0;
+    for (const instruction of executable.instructions) {
+      await withInsertTransaction(
+        tx.instructions,
+        SPL_GOVERNANCE_ID,
+        PROGRAM_VERSION_V2,
+        governance.governanceAccount,
+        proposal,
+        ownerRecord.address,
+        ownerRecord.owner.authority,
+        index,
+        0,
+        0,
+        [createInstructionData(instruction)],
+        ownerRecord.provider.wallet.publicKey
+      );
+      index++;
     }
     withSignOffProposal(
       tx.instructions,
@@ -205,6 +203,9 @@ export class ProposalHelper {
 
   async execute() {
     const tx = new TransactionEnvelope(this.governance.provider, []);
+    if (this.data.account.instructionsCount === 0) {
+      throw new Error('No instructions to execute');
+    }
     for (let index = 0; index < this.data.account.instructionsCount; index++) {
       await withExecuteTransaction(
         tx.instructions,
@@ -219,7 +220,7 @@ export class ProposalHelper {
           0,
           index
         ),
-        [createInstructionData(this.executable!.instructions[0])]
+        [createInstructionData(this.executable.instructions[index])]
       );
     }
     const result = [];

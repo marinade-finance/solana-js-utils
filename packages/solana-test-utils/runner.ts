@@ -15,7 +15,10 @@ export async function run(bpfPrograms: { address: PublicKey; path: string }[]) {
   testValidator.stderr.on('data', data => console.log(data.toString('latin1')));
   fs.rmSync(process.cwd() + '/test-ledger', { recursive: true });
   try {
-    // testValidator.on('close', code => console.log(`Close ${code}`));
+    let closed = false;
+    testValidator.on('close', code => {
+      closed = true;
+    });
     const provider = SolanaProvider.init({
       connection: new Connection('http://localhost:8899'),
       wallet: new SignerWallet(await parseKeypair('~/.config/solana/id.json')),
@@ -23,7 +26,7 @@ export async function run(bpfPrograms: { address: PublicKey; path: string }[]) {
 
     let wait = 80000;
     const step = 100;
-    while (wait > 0) {
+    while (wait > 0 && !closed) {
       try {
         await provider.connection.getLatestBlockhash();
         break;
@@ -32,8 +35,10 @@ export async function run(bpfPrograms: { address: PublicKey; path: string }[]) {
         wait -= step;
       }
     }
+    if (closed) {
+      throw new Error('Test validator was closed');
+    }
     if (wait <= 0) {
-      testValidator.kill();
       throw new Error(
         'Unable to get latest blockhash. Test validator does not look started'
       );
