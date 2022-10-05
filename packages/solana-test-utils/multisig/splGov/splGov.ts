@@ -56,7 +56,7 @@ export class SplGovHelper implements MultisigHelper {
     return false;
   }
 
-  async runTx(tx: TransactionEnvelope): Promise<TransactionReceipt> {
+  async runTx(tx: TransactionEnvelope): Promise<TransactionReceipt[]> {
     const proposal = await ProposalHelper.create({
       ownerRecord: this.tokenOwnerRecords[0],
       governance: this.governance,
@@ -78,21 +78,26 @@ export class SplGovHelper implements MultisigHelper {
     const result: TransactionReceipt[] = [];
 
     for (const proposal of proposals) {
-      if (proposal.account.state === ProposalState.Voting) {
+      if (
+        proposal.account.state === ProposalState.Voting ||
+        proposal.account.state === ProposalState.Succeeded
+      ) {
         result.push(
-          await this.executeProposal(
+          ...(await this.executeProposal(
             await ProposalHelper.load({
               address: proposal.pubkey,
               governance: this.governance,
             })
-          )
+          ))
         );
       }
     }
     return result;
   }
 
-  async executeProposal(proposal: ProposalHelper): Promise<TransactionReceipt> {
+  async executeProposal(
+    proposal: ProposalHelper
+  ): Promise<TransactionReceipt[]> {
     // Cast votes
     for (const tokenOwnerRecord of this.tokenOwnerRecords) {
       await proposal.castVote({

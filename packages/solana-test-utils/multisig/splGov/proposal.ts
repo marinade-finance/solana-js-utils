@@ -31,7 +31,6 @@ export class ProposalHelper {
     public readonly governance: GovernanceHelper,
     public readonly ownerRecord: TokenOwnerRecordHelper,
     public readonly executable: TransactionEnvelope | undefined,
-    public readonly transactionAddress: PublicKey | undefined,
     public data: ProgramAccount<Proposal>
   ) {}
 
@@ -80,22 +79,25 @@ export class ProposalHelper {
       ownerRecord.provider.wallet.publicKey,
       undefined
     );
-    let transactionAddress: PublicKey | undefined;
     if (executable) {
-      transactionAddress = await withInsertTransaction(
-        tx.instructions,
-        SPL_GOVERNANCE_ID,
-        PROGRAM_VERSION_V2,
-        governance.governanceAccount,
-        proposal,
-        ownerRecord.address,
-        ownerRecord.owner.authority,
-        0,
-        0,
-        0,
-        executable.instructions.map(ix => createInstructionData(ix)),
-        ownerRecord.provider.wallet.publicKey
-      );
+      let index = 0;
+      for (const instruction of executable.instructions) {
+        await withInsertTransaction(
+          tx.instructions,
+          SPL_GOVERNANCE_ID,
+          PROGRAM_VERSION_V2,
+          governance.governanceAccount,
+          proposal,
+          ownerRecord.address,
+          ownerRecord.owner.authority,
+          index,
+          0,
+          0,
+          [createInstructionData(instruction)],
+          ownerRecord.provider.wallet.publicKey
+        );
+        index++;
+      }
     }
     withSignOffProposal(
       tx.instructions,
@@ -114,7 +116,6 @@ export class ProposalHelper {
       governance,
       ownerRecord,
       executable,
-      transactionAddress,
       await getProposal(ownerRecord.provider.connection, proposal)
     );
   }
@@ -127,18 +128,32 @@ export class ProposalHelper {
     governance: GovernanceHelper;
   }) {
     const data = await getProposal(governance.provider.connection, address);
-    const proposalTransaction = await getProposalTransactionAddress(
-      SPL_GOVERNANCE_ID,
-      PROGRAM_VERSION_V2,
-      address,
-      0,
-      0
-    );
-    const proposalTransactionData = await getGovernanceAccount(
-      governance.provider.connection,
-      proposalTransaction,
-      ProposalTransaction
-    );
+    const tx = new TransactionEnvelope(governance.provider, []);
+    for (let index = 0; index < data.account.instructionsCount; index++) {
+      const proposalTransaction = await getProposalTransactionAddress(
+        SPL_GOVERNANCE_ID,
+        PROGRAM_VERSION_V2,
+        address,
+        0,
+        index
+      );
+      const proposalTransactionData = await getGovernanceAccount(
+        governance.provider.connection,
+        proposalTransaction,
+        ProposalTransaction
+      );
+      if (proposalTransactionData.account.instructions.length > 1) {
+        throw new Error('Multiix txses are not supported');
+      }
+      const instruction = proposalTransactionData.account.instructions[0];
+      tx.append(
+        new TransactionInstruction({
+          keys: instruction.accounts,
+          programId: instruction.programId,
+          data: Buffer.from(instruction.data),
+        })
+      );
+    }
     return new ProposalHelper(
       governance,
       await TokenOwnerRecordHelper.load({
@@ -146,18 +161,7 @@ export class ProposalHelper {
         address: data.account.tokenOwnerRecord,
         realm: governance.realm,
       }),
-      new TransactionEnvelope(
-        governance.provider,
-        proposalTransactionData.account.instructions.map(
-          i =>
-            new TransactionInstruction({
-              keys: i.accounts,
-              programId: i.programId,
-              data: Buffer.from(i.data),
-            })
-        )
-      ),
-      proposalTransaction,
+      tx,
       data
     );
   }
@@ -201,16 +205,28 @@ export class ProposalHelper {
 
   async execute() {
     const tx = new TransactionEnvelope(this.governance.provider, []);
-    await withExecuteTransaction(
-      tx.instructions,
-      SPL_GOVERNANCE_ID,
-      PROGRAM_VERSION_V2,
-      this.governance.governanceAccount,
-      this.address,
-      this.transactionAddress!,
-      this.executable!.instructions.map(ix => createInstructionData(ix))
-    );
-    return await tx.confirm();
+    for (let index = 0; index < this.data.account.instructionsCount; index++) {
+      await withExecuteTransaction(
+        tx.instructions,
+        SPL_GOVERNANCE_ID,
+        PROGRAM_VERSION_V2,
+        this.governance.governanceAccount,
+        this.address,
+        await getProposalTransactionAddress(
+          SPL_GOVERNANCE_ID,
+          PROGRAM_VERSION_V2,
+          this.address,
+          0,
+          index
+        ),
+        [createInstructionData(this.executable!.instructions[0])]
+      );
+    }
+    const result = [];
+    for (const part of tx.partition()) {
+      result.push(await part.confirm());
+    }
+    return result;
   }
 
   async reload() {

@@ -8,7 +8,7 @@ import { Keypair } from '@solana/web3.js';
 
 export interface SignerHelper {
   authority: PublicKey;
-  runTx(tx: TransactionEnvelope): Promise<TransactionReceipt>;
+  runTx(tx: TransactionEnvelope): Promise<TransactionReceipt[]>;
   signTx(tx: TransactionEnvelope): boolean;
   canSign: boolean;
 }
@@ -20,8 +20,12 @@ export class WalletSignerHelper implements SignerHelper {
     return this.wallet.publicKey;
   }
 
-  runTx(tx: TransactionEnvelope): Promise<TransactionReceipt> {
-    return tx.confirm();
+  async runTx(tx: TransactionEnvelope): Promise<TransactionReceipt[]> {
+    const result = [];
+    for (const part of tx.partition()) {
+      result.push(await part.confirm());
+    }
+    return result;
   }
 
   signTx(_: TransactionEnvelope): boolean {
@@ -40,9 +44,13 @@ export class KeypairSignerHelper implements SignerHelper {
     return this.keypair.publicKey;
   }
 
-  runTx(tx: TransactionEnvelope): Promise<TransactionReceipt> {
+  async runTx(tx: TransactionEnvelope): Promise<TransactionReceipt[]> {
     this.signTx(tx);
-    return tx.confirm();
+    const result = [];
+    for (const part of tx.partition()) {
+      result.push(await part.confirm());
+    }
+    return result;
   }
 
   signTx(tx: TransactionEnvelope): boolean {
@@ -58,7 +66,7 @@ export class KeypairSignerHelper implements SignerHelper {
 export class PDASigner implements SignerHelper {
   constructor(public readonly authority: PublicKey) {}
 
-  runTx(_: TransactionEnvelope): Promise<TransactionReceipt> {
+  runTx(_: TransactionEnvelope): Promise<TransactionReceipt[]> {
     throw new Error('Use another contract to sign PDA');
   }
 

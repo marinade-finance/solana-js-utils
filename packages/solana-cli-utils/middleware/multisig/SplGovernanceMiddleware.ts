@@ -123,20 +123,24 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
       rentPayerKey,
       undefined
     );
-    const proposalTransaction = await withInsertTransaction(
-      tx.instructions,
-      SplGovernanceMiddleware.PROG_ID,
-      PROGRAM_VERSION,
-      this.goverance.pubkey,
-      proposal,
-      tokenOwnerRecord,
-      proposerKey,
-      0,
-      0,
-      0,
-      inner.instructions.map(createInstructionData),
-      rentPayerKey
-    );
+    let index = 0;
+    for (const instruction of inner.instructions) {
+      await withInsertTransaction(
+        tx.instructions,
+        SplGovernanceMiddleware.PROG_ID,
+        PROGRAM_VERSION,
+        this.goverance.pubkey,
+        proposal,
+        tokenOwnerRecord,
+        proposerKey,
+        index,
+        0,
+        0,
+        [createInstructionData(instruction)],
+        rentPayerKey
+      );
+      index++;
+    }
 
     withSignOffProposal(
       tx.instructions,

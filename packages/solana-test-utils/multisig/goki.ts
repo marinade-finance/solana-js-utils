@@ -50,7 +50,7 @@ export class GokiHelper implements MultisigHelper {
     return new GokiHelper(goki, members, smartWalletWrapper);
   }
 
-  async runTx(inner: TransactionEnvelope): Promise<TransactionReceipt> {
+  async runTx(inner: TransactionEnvelope): Promise<TransactionReceipt[]> {
     const { tx, transactionKey } =
       await this.smartWalletWrapper.newTransactionFromEnvelope({
         tx: inner,
@@ -72,7 +72,10 @@ export class GokiHelper implements MultisigHelper {
       const info = (await this.smartWalletWrapper.fetchTransactionByIndex(i))!;
       if (info.executedAt.eqn(-1)) {
         results.push(
-          await this.executeTransaction(await this.transactionByIndex(i), info)
+          ...(await this.executeTransaction(
+            await this.transactionByIndex(i),
+            info
+          ))
         );
       }
     }
@@ -82,7 +85,7 @@ export class GokiHelper implements MultisigHelper {
   async executeTransaction(
     address: PublicKey,
     info: SmartWalletTransactionData
-  ): Promise<TransactionReceipt> {
+  ): Promise<TransactionReceipt[]> {
     let signersLeft =
       this.smartWalletWrapper.data!.threshold.toNumber() -
       info.signers.filter(s => s).length;
@@ -107,11 +110,11 @@ export class GokiHelper implements MultisigHelper {
     );
     this.members[0].signTx(tx);
 
-    let result: TransactionReceipt;
+    const result = [];
     for (const part of tx.partition()) {
-      result = await part.confirm();
+      result.push(await part.confirm());
     }
-    return result!; // return the last one containing executeTransaction instuction
+    return result;
   }
 
   get authority() {
