@@ -127,7 +127,11 @@ export class ProposalHelper {
   }) {
     const data = await getProposal(governance.provider.connection, address);
     const tx = new TransactionEnvelope(governance.provider, []);
-    for (let index = 0; index < data.account.instructionsCount; index++) {
+    for (
+      let index = 0;
+      index < data.account.options[0].instructionsCount;
+      index++
+    ) {
       const proposalTransaction = await getProposalTransactionAddress(
         SPL_GOVERNANCE_ID,
         PROGRAM_VERSION_V2,
@@ -203,10 +207,14 @@ export class ProposalHelper {
 
   async execute() {
     const tx = new TransactionEnvelope(this.governance.provider, []);
-    if (this.data.account.instructionsCount === 0) {
+    if (this.data.account.options[0].instructionsCount === 0) {
       throw new Error('No instructions to execute');
     }
-    for (let index = 0; index < this.data.account.instructionsCount; index++) {
+    for (
+      let index = 0;
+      index < this.data.account.options[0].instructionsCount;
+      index++
+    ) {
       await withExecuteTransaction(
         tx.instructions,
         SPL_GOVERNANCE_ID,
