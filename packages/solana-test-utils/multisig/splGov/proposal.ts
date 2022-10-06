@@ -1,4 +1,8 @@
-import { TransactionEnvelope } from '@saberhq/solana-contrib';
+import {
+  SignerWallet,
+  SolanaProvider,
+  TransactionEnvelope,
+} from '@saberhq/solana-contrib';
 import {
   createInstructionData,
   getGovernanceAccount,
@@ -18,7 +22,15 @@ import {
   withInsertTransaction,
   withSignOffProposal,
 } from '@solana/spl-governance';
-import { Connection, PublicKey, TransactionInstruction } from '@solana/web3.js';
+import {
+  Connection,
+  Keypair,
+  LAMPORTS_PER_SOL,
+  PublicKey,
+  SystemInstruction,
+  SystemProgram,
+  TransactionInstruction,
+} from '@solana/web3.js';
 import { GovernanceHelper } from './governance';
 import { SPL_GOVERNANCE_ID } from './id';
 import {
@@ -206,7 +218,21 @@ export class ProposalHelper {
   }
 
   async execute() {
-    const tx = new TransactionEnvelope(this.governance.provider, []);
+    const wallet = new SignerWallet(new Keypair());
+    const fillTx = new TransactionEnvelope(this.governance.provider, [
+      SystemProgram.transfer({
+        fromPubkey: this.governance.provider.wallet.publicKey,
+        toPubkey: wallet.publicKey,
+        lamports: 10 * LAMPORTS_PER_SOL,
+      }),
+    ]);
+    await fillTx.confirm();
+    const provider = SolanaProvider.init({
+      connection: this.governance.provider.connection,
+      wallet,
+      opts: this.governance.provider.opts,
+    });
+    const tx = new TransactionEnvelope(provider, []);
     if (this.data.account.options[0].instructionsCount === 0) {
       throw new Error('No instructions to execute');
     }
