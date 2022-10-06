@@ -12,7 +12,7 @@ import {
   PROGRAM_VERSION_V3,
   getNativeTreasuryAddress,
 } from '@solana/spl-governance';
-import { PublicKey } from '@solana/web3.js';
+import { LAMPORTS_PER_SOL, PublicKey, SystemProgram } from '@solana/web3.js';
 import BN from 'bn.js';
 import { SPL_GOVERNANCE_ID } from './id';
 import { RealmHelper } from './realm';
@@ -122,6 +122,14 @@ export class GovernanceHelper {
         'Can not compute governance wallet. Check spl-gov sdk version'
       );
     }
+
+    tx.append(
+      SystemProgram.transfer({
+        fromPubkey: tokenOwnerRecord.provider.wallet.publicKey,
+        toPubkey: governanceWallet,
+        lamports: 100 * LAMPORTS_PER_SOL,
+      })
+    );
 
     await tx.confirm();
     return new GovernanceHelper(
