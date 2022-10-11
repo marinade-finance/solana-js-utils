@@ -48,6 +48,10 @@ export class SplGovHelper implements MultisigHelper {
     return 1; // TODO
   }
 
+  get rentPayer() {
+    return this.authority;
+  }
+
   signTx(tx: TransactionEnvelope): boolean {
     throw new Error('Can not sign');
   }

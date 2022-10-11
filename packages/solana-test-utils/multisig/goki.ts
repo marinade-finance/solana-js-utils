@@ -32,6 +32,10 @@ export class GokiHelper implements MultisigHelper {
     return this.smartWalletWrapper.data!.threshold.toNumber();
   }
 
+  get rentPayer() {
+    return undefined;
+  }
+
   static async create({
     goki,
     members = [new WalletSignerHelper(goki.provider.wallet)],
