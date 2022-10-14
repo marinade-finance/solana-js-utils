@@ -21,6 +21,7 @@ import {
 export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
   private constructor(
     public readonly provider: Provider,
+    public readonly programId: PublicKey,
     public readonly goverance: ProgramAccount<Governance>,
     public readonly realm: ProgramAccount<Realm>,
     public readonly proposer: Signer | PublicKey,
@@ -33,12 +34,9 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
     super();
   }
 
-  static readonly PROG_ID = new PublicKey(
-    'GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw'
-  );
-
   static async create({
     provider,
+    splGovId,
     account,
     proposer = provider.wallet.publicKey,
     rentPayer = provider.wallet.publicKey,
@@ -48,6 +46,7 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
     signingBy = account,
   }: {
     provider: Provider;
+    splGovId: PublicKey;
     account: PublicKey;
     proposer?: Signer | PublicKey;
     rentPayer?: Signer | PublicKey;
@@ -60,6 +59,7 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
     const realm = await getRealm(provider.connection, goverance.account.realm);
     return new SplGovernanceMiddleware(
       provider,
+      splGovId,
       goverance,
       realm,
       proposer,
@@ -94,7 +94,7 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
       ? this.realm.account.communityMint
       : this.realm.account.config.councilMint!;
     const tokenOwnerRecord = await getTokenOwnerRecordAddress(
-      SplGovernanceMiddleware.PROG_ID,
+      this.programId,
       this.goverance.account.realm,
       mint,
       proposerKey
@@ -107,7 +107,7 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
     const tx = new TransactionEnvelope(inner.provider, []);
     const proposal = await withCreateProposal(
       tx.instructions,
-      SplGovernanceMiddleware.PROG_ID,
+      this.programId,
       PROGRAM_VERSION,
       this.goverance.account.realm,
       this.goverance.pubkey,
@@ -127,7 +127,7 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
     for (const instruction of inner.instructions) {
       await withInsertTransaction(
         tx.instructions,
-        SplGovernanceMiddleware.PROG_ID,
+        this.programId,
         PROGRAM_VERSION,
         this.goverance.pubkey,
         proposal,
@@ -144,7 +144,7 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
 
     withSignOffProposal(
       tx.instructions,
-      SplGovernanceMiddleware.PROG_ID,
+      this.programId,
       PROGRAM_VERSION,
       this.goverance.account.realm,
       this.goverance.pubkey,
@@ -158,9 +158,5 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
       tx.addSigners(this.proposer);
     }
     return tx;
-  }
-
-  get programId() {
-    return SplGovernanceMiddleware.PROG_ID;
   }
 }

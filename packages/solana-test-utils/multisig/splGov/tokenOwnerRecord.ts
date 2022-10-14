@@ -11,7 +11,6 @@ import { Connection, PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
 import { getAssociatedTokenAddress } from 'solana-spl-token-modern';
 import { PDASigner, SignerHelper, WalletSignerHelper } from '../../signer';
-import { SPL_GOVERNANCE_ID } from './id';
 import { RealmHelper } from './realm';
 
 export type TokenOwnerRecordSide = 'council' | 'community';
@@ -30,6 +29,10 @@ export class TokenOwnerRecordHelper {
 
   get provider() {
     return this.realm.provider;
+  }
+
+  get splGovId() {
+    return this.realm.splGovId;
   }
 
   get mint() {
@@ -51,7 +54,7 @@ export class TokenOwnerRecordHelper {
     const tx = new TransactionEnvelope(realm.provider, []);
     const tokenOwnerRecord = await withCreateTokenOwnerRecord(
       tx.instructions,
-      SPL_GOVERNANCE_ID,
+      realm.splGovId,
       PROGRAM_VERSION_V2,
       realm.address,
       owner.authority,
@@ -75,7 +78,7 @@ export class TokenOwnerRecordHelper {
     });
     await withDepositGoverningTokens(
       tx.instructions,
-      SPL_GOVERNANCE_ID,
+      this.splGovId,
       PROGRAM_VERSION_V2,
       this.realm.address,
       await getAssociatedTokenAddress(

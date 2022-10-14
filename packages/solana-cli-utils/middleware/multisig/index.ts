@@ -19,6 +19,7 @@ export async function installMultisigMiddleware({
   rentPayer,
   logOnly,
   community,
+  govProgId = new PublicKey('GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw'),
 }: {
   middleware: Middleware[];
   goki: GokiSDK;
@@ -28,6 +29,7 @@ export async function installMultisigMiddleware({
   rentPayer?: Keypair;
   logOnly?: boolean;
   community?: boolean;
+  govProgId?: PublicKey;
 }) {
   // Prevent doublication of multisig
   for (const m of middleware) {
@@ -46,12 +48,11 @@ export async function installMultisigMiddleware({
           rentPayer,
         })
       );
-    } else if (
-      account.accountInfo.owner.equals(SplGovernanceMiddleware.PROG_ID)
-    ) {
+    } else if (account.accountInfo.owner.equals(govProgId)) {
       middleware.push(
         await SplGovernanceMiddleware.create({
           provider: goki.provider,
+          splGovId: govProgId,
           account: address,
           proposer,
           rentPayer,
@@ -65,7 +66,7 @@ export async function installMultisigMiddleware({
     if (!keyInfo) {
       return;
     }
-    if (keyInfo.owner.equals(SplGovernanceMiddleware.PROG_ID)) {
+    if (keyInfo.owner.equals(govProgId)) {
       const NATIVE_TREASURY_SEED = encode('native-treasury');
       if (
         Buffer.from(
@@ -75,6 +76,7 @@ export async function installMultisigMiddleware({
         middleware.push(
           await SplGovernanceMiddleware.create({
             provider: goki.provider,
+            splGovId: govProgId,
             account: new PublicKey(
               keyInfo.seeds.subarray(
                 NATIVE_TREASURY_SEED.length,

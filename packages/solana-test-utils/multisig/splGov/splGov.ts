@@ -20,7 +20,6 @@ import {
 } from '../../signer';
 import { MultisigHelper } from '../multisig';
 import { GovernanceHelper } from './governance';
-import { SPL_GOVERNANCE_ID } from './id';
 import { ProposalHelper } from './proposal';
 import { RealmHelper } from './realm';
 import {
@@ -75,7 +74,7 @@ export class SplGovHelper implements MultisigHelper {
   async executeAllPending(): Promise<TransactionReceipt[]> {
     const proposals = await getProposalsByGovernance(
       this.governance.provider.connection,
-      SPL_GOVERNANCE_ID,
+      this.governance.splGovId,
       this.governance.governanceAccount
     );
 
@@ -124,7 +123,7 @@ export class SplGovHelper implements MultisigHelper {
       );
     }
 
-    // It is not possible to execute proposal create same second
+    // It is not possible to execute proposal created same second
     await sleep(2000);
 
     return await proposal.execute();
@@ -140,18 +139,21 @@ export class SplGovHelper implements MultisigHelper {
     // TODO: threshold = 1,
     governance,
     side,
+    govProgId,
   }: {
     kedgeree: KedgereeSDK;
     members?: SignerHelper[];
     threshold?: number;
     governance?: GovernanceHelper;
     side: TokenOwnerRecordSide;
+    govProgId?: PublicKey;
   }) {
     if (!governance) {
       const realm = await RealmHelper.create({
         provider: kedgeree.provider,
         communityMint: await MintHelper.create({ provider: kedgeree.provider }),
         councilMint: await MintHelper.create({ provider: kedgeree.provider }),
+        splGovId: govProgId,
       });
       const tmpUser = new Keypair();
       const tmpTokenOwnerRecord = await TokenOwnerRecordHelper.create({

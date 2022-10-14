@@ -32,7 +32,6 @@ import {
   TransactionInstruction,
 } from '@solana/web3.js';
 import { GovernanceHelper } from './governance';
-import { SPL_GOVERNANCE_ID } from './id';
 import {
   TokenOwnerRecordHelper,
   TokenOwnerRecordSide,
@@ -54,6 +53,10 @@ export class ProposalHelper {
     return this.governance.provider;
   }
 
+  get splGovId() {
+    return this.governance.splGovId;
+  }
+
   static async create({
     ownerRecord,
     governance,
@@ -72,7 +75,7 @@ export class ProposalHelper {
     const tx = new TransactionEnvelope(ownerRecord.provider, []);
     const proposal = await withCreateProposal(
       tx.instructions,
-      SPL_GOVERNANCE_ID,
+      governance.splGovId,
       PROGRAM_VERSION_V2,
       ownerRecord.realm.address,
       governance.governanceAccount,
@@ -95,7 +98,7 @@ export class ProposalHelper {
     for (const instruction of executable.instructions) {
       await withInsertTransaction(
         tx.instructions,
-        SPL_GOVERNANCE_ID,
+        governance.splGovId,
         PROGRAM_VERSION_V2,
         governance.governanceAccount,
         proposal,
@@ -111,7 +114,7 @@ export class ProposalHelper {
     }
     withSignOffProposal(
       tx.instructions,
-      SPL_GOVERNANCE_ID,
+      governance.splGovId,
       PROGRAM_VERSION_V2,
       governance.realm.address,
       governance.governanceAccount,
@@ -145,7 +148,7 @@ export class ProposalHelper {
       index++
     ) {
       const proposalTransaction = await getProposalTransactionAddress(
-        SPL_GOVERNANCE_ID,
+        governance.splGovId,
         PROGRAM_VERSION_V2,
         address,
         0,
@@ -190,7 +193,7 @@ export class ProposalHelper {
     const tx = new TransactionEnvelope(tokenOwnerRecord.provider, []);
     await withCastVote(
       tx.instructions,
-      SPL_GOVERNANCE_ID,
+      this.splGovId,
       PROGRAM_VERSION_V2,
       this.governance.realm.address,
       this.governance.governanceAccount,
@@ -243,12 +246,12 @@ export class ProposalHelper {
     ) {
       await withExecuteTransaction(
         tx.instructions,
-        SPL_GOVERNANCE_ID,
+        this.splGovId,
         PROGRAM_VERSION_V2,
         this.governance.governanceAccount,
         this.address,
         await getProposalTransactionAddress(
-          SPL_GOVERNANCE_ID,
+          this.splGovId,
           PROGRAM_VERSION_V2,
           this.address,
           0,

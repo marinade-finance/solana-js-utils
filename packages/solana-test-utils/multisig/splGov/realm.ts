@@ -14,7 +14,6 @@ import {
 } from '@solana/spl-governance';
 import { Provider, TransactionEnvelope } from '@saberhq/solana-contrib';
 import BN from 'bn.js';
-import { SPL_GOVERNANCE_ID } from './id';
 import {
   createAssociatedTokenAccount,
   createAssociatedTokenAccountInstruction,
@@ -27,6 +26,7 @@ import { SignerHelper, WalletSignerHelper } from '../../signer';
 export class RealmHelper {
   private constructor(
     public readonly provider: Provider,
+    public readonly splGovId: PublicKey,
     public readonly communityMint: MintHelper,
     public readonly communityWeightAddin: PublicKey | undefined,
     public readonly councilMint: MintHelper,
@@ -40,6 +40,7 @@ export class RealmHelper {
 
   static async create({
     provider,
+    splGovId = new PublicKey('GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw'),
     name = Math.random().toString(),
     communityMint,
     communityWeightAddin,
@@ -47,6 +48,7 @@ export class RealmHelper {
     admin = new WalletSignerHelper(provider.wallet),
   }: {
     provider: Provider;
+    splGovId?: PublicKey;
     name?: string;
     communityMint: MintHelper;
     communityWeightAddin?: PublicKey;
@@ -58,14 +60,17 @@ export class RealmHelper {
     const tx = new TransactionEnvelope(provider, []);
     const realm = await withCreateRealm(
       tx.instructions,
-      SPL_GOVERNANCE_ID,
+      splGovId,
       PROGRAM_VERSION_V2,
       name,
       admin.authority,
       communityMint.address,
       provider.wallet.publicKey,
       councilMint.address,
-      new MintMaxVoteWeightSource({ value: new BN(1), type: MintMaxVoteWeightSourceType.SupplyFraction }),
+      new MintMaxVoteWeightSource({
+        value: new BN(1),
+        type: MintMaxVoteWeightSourceType.SupplyFraction,
+      }),
       new BN(0),
       new GoverningTokenConfigAccountArgs({
         voterWeightAddin: communityWeightAddin,
@@ -79,6 +84,7 @@ export class RealmHelper {
 
     return new RealmHelper(
       provider,
+      splGovId,
       communityMint,
       communityWeightAddin,
       councilMint,

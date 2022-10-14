@@ -14,7 +14,6 @@ import {
 } from '@solana/spl-governance';
 import { LAMPORTS_PER_SOL, PublicKey, SystemProgram } from '@solana/web3.js';
 import BN from 'bn.js';
-import { SPL_GOVERNANCE_ID } from './id';
 import { RealmHelper } from './realm';
 import { TokenOwnerRecordHelper } from './tokenOwnerRecord';
 import { KedgereeSDK } from '@marinade.finance/kedgeree-sdk';
@@ -80,6 +79,10 @@ export class GovernanceHelper {
     return this.data.pubkey;
   }
 
+  get splGovId() {
+    return this.realm.splGovId;
+  }
+
   static async create({
     tokenOwnerRecord,
     kedgeree,
@@ -90,7 +93,7 @@ export class GovernanceHelper {
     let tx = new TransactionEnvelope(tokenOwnerRecord.provider, []);
     const governance = await withCreateGovernance(
       tx.instructions,
-      SPL_GOVERNANCE_ID,
+      tokenOwnerRecord.splGovId,
       PROGRAM_VERSION_V2,
       tokenOwnerRecord.realm.address,
       undefined,
@@ -109,13 +112,13 @@ export class GovernanceHelper {
 
     const { tx: createPDAInfoTx, key: governanceWallet } =
       await kedgeree.createPDAInfo({
-        owner: SPL_GOVERNANCE_ID,
+        owner: tokenOwnerRecord.splGovId,
         seeds: [encode('native-treasury'), governance.toBytes()],
       });
     tx = tx.combine(createPDAInfoTx);
     if (
       !governanceWallet.equals(
-        await getNativeTreasuryAddress(SPL_GOVERNANCE_ID, governance)
+        await getNativeTreasuryAddress(tokenOwnerRecord.splGovId, governance)
       )
     ) {
       throw new Error(
