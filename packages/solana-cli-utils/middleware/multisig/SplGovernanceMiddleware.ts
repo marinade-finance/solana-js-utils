@@ -34,7 +34,7 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
   }
 
   static readonly PROG_ID = new PublicKey(
-    'MGov1hBkLYJJJMJccS1yPps1M71FopcFxxNupuWeq3R'
+    'GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw'
   );
 
   static async create({
