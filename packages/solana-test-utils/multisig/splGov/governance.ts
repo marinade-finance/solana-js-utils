@@ -1,7 +1,6 @@
 import { TransactionEnvelope } from '@saberhq/solana-contrib';
 import {
   GovernanceConfig,
-  PROGRAM_VERSION_V2,
   withCreateGovernance,
   VoteThreshold,
   VoteThresholdType,
@@ -83,6 +82,10 @@ export class GovernanceHelper {
     return this.realm.splGovId;
   }
 
+  get splGovVersion() {
+    return this.realm.splGovVersion;
+  }
+
   static async create({
     tokenOwnerRecord,
     kedgeree,
@@ -94,11 +97,11 @@ export class GovernanceHelper {
     const governance = await withCreateGovernance(
       tx.instructions,
       tokenOwnerRecord.splGovId,
-      PROGRAM_VERSION_V2,
+      tokenOwnerRecord.splGovVersion,
       tokenOwnerRecord.realm.address,
       undefined,
       new GovernanceConfig({
-        ...createGovernanceThresholds(PROGRAM_VERSION_V2, 40),
+        ...createGovernanceThresholds(tokenOwnerRecord.splGovVersion, 40),
         councilVoteTipping: VoteTipping.Early,
         minCommunityTokensToCreateProposal: new BN(1),
         minInstructionHoldUpTime: 0,

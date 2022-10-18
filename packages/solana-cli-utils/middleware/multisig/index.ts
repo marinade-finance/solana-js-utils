@@ -6,6 +6,7 @@ import { MultisigMiddlewareBase } from './MultisigMiddlewareBase';
 import { SplGovernanceMiddleware } from './SplGovernanceMiddleware';
 import { KedgereeSDK } from '@marinade.finance/kedgeree-sdk';
 import { encode } from '@project-serum/anchor/dist/cjs/utils/bytes/utf8';
+import { PROGRAM_VERSION_V2 } from '@solana/spl-governance';
 
 export { GokiMiddleware } from './GokiMiddleware';
 export { SplGovernanceMiddleware as SplGovDataMiddleware } from './SplGovernanceMiddleware';
@@ -20,6 +21,7 @@ export async function installMultisigMiddleware({
   logOnly,
   community,
   govProgId = new PublicKey('GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw'),
+  govProgVersion = PROGRAM_VERSION_V2,
 }: {
   middleware: Middleware[];
   goki: GokiSDK;
@@ -30,6 +32,7 @@ export async function installMultisigMiddleware({
   logOnly?: boolean;
   community?: boolean;
   govProgId?: PublicKey;
+  govProgVersion?: number;
 }) {
   // Prevent doublication of multisig
   for (const m of middleware) {
@@ -53,6 +56,7 @@ export async function installMultisigMiddleware({
         await SplGovernanceMiddleware.create({
           provider: goki.provider,
           splGovId: govProgId,
+          splGovVersion: govProgVersion,
           account: address,
           proposer,
           rentPayer,
@@ -77,6 +81,7 @@ export async function installMultisigMiddleware({
           await SplGovernanceMiddleware.create({
             provider: goki.provider,
             splGovId: govProgId,
+            splGovVersion: govProgVersion,
             account: new PublicKey(
               keyInfo.seeds.subarray(
                 NATIVE_TREASURY_SEED.length,

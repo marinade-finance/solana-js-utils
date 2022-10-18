@@ -9,7 +9,6 @@ import {
   getProposal,
   getProposalTransactionAddress,
   ProgramAccount,
-  PROGRAM_VERSION_V2,
   Proposal,
   ProposalTransaction,
   Vote,
@@ -57,6 +56,10 @@ export class ProposalHelper {
     return this.governance.splGovId;
   }
 
+  get splGovVersion() {
+    return this.governance.splGovVersion;
+  }
+
   static async create({
     ownerRecord,
     governance,
@@ -76,7 +79,7 @@ export class ProposalHelper {
     const proposal = await withCreateProposal(
       tx.instructions,
       governance.splGovId,
-      PROGRAM_VERSION_V2,
+      governance.splGovVersion,
       ownerRecord.realm.address,
       governance.governanceAccount,
       ownerRecord.address,
@@ -99,7 +102,7 @@ export class ProposalHelper {
       await withInsertTransaction(
         tx.instructions,
         governance.splGovId,
-        PROGRAM_VERSION_V2,
+        governance.splGovVersion,
         governance.governanceAccount,
         proposal,
         ownerRecord.address,
@@ -115,7 +118,7 @@ export class ProposalHelper {
     withSignOffProposal(
       tx.instructions,
       governance.splGovId,
-      PROGRAM_VERSION_V2,
+      governance.splGovVersion,
       governance.realm.address,
       governance.governanceAccount,
       proposal,
@@ -149,7 +152,7 @@ export class ProposalHelper {
     ) {
       const proposalTransaction = await getProposalTransactionAddress(
         governance.splGovId,
-        PROGRAM_VERSION_V2,
+        governance.splGovVersion,
         address,
         0,
         index
@@ -194,7 +197,7 @@ export class ProposalHelper {
     await withCastVote(
       tx.instructions,
       this.splGovId,
-      PROGRAM_VERSION_V2,
+      this.splGovVersion,
       this.governance.realm.address,
       this.governance.governanceAccount,
       this.address,
@@ -247,12 +250,12 @@ export class ProposalHelper {
       await withExecuteTransaction(
         tx.instructions,
         this.splGovId,
-        PROGRAM_VERSION_V2,
+        this.splGovVersion,
         this.governance.governanceAccount,
         this.address,
         await getProposalTransactionAddress(
           this.splGovId,
-          PROGRAM_VERSION_V2,
+          this.splGovVersion,
           this.address,
           0,
           index

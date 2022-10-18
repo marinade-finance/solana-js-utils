@@ -5,11 +5,9 @@ import {
   createInstructionData,
   getGovernance,
   getRealm,
-  getTokenOwnerRecord,
   getTokenOwnerRecordAddress,
   Governance,
   ProgramAccount,
-  PROGRAM_VERSION,
   Realm,
   serializeInstructionToBase64,
   VoteType,
@@ -22,6 +20,7 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
   private constructor(
     public readonly provider: Provider,
     public readonly programId: PublicKey,
+    public readonly splGovVersion: number,
     public readonly goverance: ProgramAccount<Governance>,
     public readonly realm: ProgramAccount<Realm>,
     public readonly proposer: Signer | PublicKey,
@@ -37,6 +36,7 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
   static async create({
     provider,
     splGovId,
+    splGovVersion,
     account,
     proposer = provider.wallet.publicKey,
     rentPayer = provider.wallet.publicKey,
@@ -47,6 +47,7 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
   }: {
     provider: Provider;
     splGovId: PublicKey;
+    splGovVersion: number;
     account: PublicKey;
     proposer?: Signer | PublicKey;
     rentPayer?: Signer | PublicKey;
@@ -60,6 +61,7 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
     return new SplGovernanceMiddleware(
       provider,
       splGovId,
+      splGovVersion,
       goverance,
       realm,
       proposer,
@@ -108,7 +110,7 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
     const proposal = await withCreateProposal(
       tx.instructions,
       this.programId,
-      PROGRAM_VERSION,
+      this.splGovVersion,
       this.goverance.account.realm,
       this.goverance.pubkey,
       tokenOwnerRecord,
@@ -128,7 +130,7 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
       await withInsertTransaction(
         tx.instructions,
         this.programId,
-        PROGRAM_VERSION,
+        this.splGovVersion,
         this.goverance.pubkey,
         proposal,
         tokenOwnerRecord,
@@ -145,7 +147,7 @@ export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
     withSignOffProposal(
       tx.instructions,
       this.programId,
-      PROGRAM_VERSION,
+      this.splGovVersion,
       this.goverance.account.realm,
       this.goverance.pubkey,
       proposal,

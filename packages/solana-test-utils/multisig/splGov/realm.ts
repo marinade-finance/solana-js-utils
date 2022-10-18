@@ -27,6 +27,7 @@ export class RealmHelper {
   private constructor(
     public readonly provider: Provider,
     public readonly splGovId: PublicKey,
+    public readonly splGovVersion: number,
     public readonly communityMint: MintHelper,
     public readonly communityWeightAddin: PublicKey | undefined,
     public readonly councilMint: MintHelper,
@@ -41,6 +42,7 @@ export class RealmHelper {
   static async create({
     provider,
     splGovId = new PublicKey('GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw'),
+    splGovVersion = PROGRAM_VERSION_V2,
     name = Math.random().toString(),
     communityMint,
     communityWeightAddin,
@@ -49,6 +51,7 @@ export class RealmHelper {
   }: {
     provider: Provider;
     splGovId?: PublicKey;
+    splGovVersion?: number;
     name?: string;
     communityMint: MintHelper;
     communityWeightAddin?: PublicKey;
@@ -61,7 +64,7 @@ export class RealmHelper {
     const realm = await withCreateRealm(
       tx.instructions,
       splGovId,
-      PROGRAM_VERSION_V2,
+      splGovVersion,
       name,
       admin.authority,
       communityMint.address,
@@ -85,6 +88,7 @@ export class RealmHelper {
     return new RealmHelper(
       provider,
       splGovId,
+      splGovVersion,
       communityMint,
       communityWeightAddin,
       councilMint,

@@ -2,7 +2,6 @@ import { TransactionEnvelope } from '@saberhq/solana-contrib';
 import {
   getTokenOwnerRecord,
   ProgramAccount,
-  PROGRAM_VERSION_V2,
   TokenOwnerRecord,
   withCreateTokenOwnerRecord,
   withDepositGoverningTokens,
@@ -35,6 +34,10 @@ export class TokenOwnerRecordHelper {
     return this.realm.splGovId;
   }
 
+  get splGovVersion() {
+    return this.realm.splGovVersion;
+  }
+
   get mint() {
     return this.side === 'council'
       ? this.realm.councilMint
@@ -55,7 +58,7 @@ export class TokenOwnerRecordHelper {
     const tokenOwnerRecord = await withCreateTokenOwnerRecord(
       tx.instructions,
       realm.splGovId,
-      PROGRAM_VERSION_V2,
+      realm.splGovVersion,
       realm.address,
       owner.authority,
       mint.address,
@@ -79,7 +82,7 @@ export class TokenOwnerRecordHelper {
     await withDepositGoverningTokens(
       tx.instructions,
       this.splGovId,
-      PROGRAM_VERSION_V2,
+      this.splGovVersion,
       this.realm.address,
       await getAssociatedTokenAddress(
         this.mint.address,
