@@ -5,6 +5,7 @@ import {
   TokenOwnerRecord,
   withCreateTokenOwnerRecord,
   withDepositGoverningTokens,
+  withSetGovernanceDelegate,
 } from '@solana/spl-governance';
 import { Connection, PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
@@ -18,6 +19,7 @@ export class TokenOwnerRecordHelper {
   private constructor(
     public readonly realm: RealmHelper,
     public readonly owner: SignerHelper,
+    public readonly delegate: SignerHelper | undefined,
     public readonly side: TokenOwnerRecordSide,
     public data: ProgramAccount<TokenOwnerRecord>
   ) {}
@@ -47,10 +49,12 @@ export class TokenOwnerRecordHelper {
   static async create({
     realm,
     owner = new WalletSignerHelper(realm.provider.wallet),
+    delegate,
     side,
   }: {
     realm: RealmHelper;
     owner?: SignerHelper;
+    delegate?: SignerHelper;
     side: TokenOwnerRecordSide;
   }) {
     const mint = side === 'council' ? realm.councilMint : realm.communityMint;
@@ -64,11 +68,26 @@ export class TokenOwnerRecordHelper {
       mint.address,
       realm.provider.wallet.publicKey
     );
-    await tx.confirm();
+    if (delegate) {
+      await withSetGovernanceDelegate(
+        tx.instructions,
+        realm.splGovId,
+        realm.splGovVersion,
+        realm.address,
+        mint.address,
+        owner.authority,
+        owner.authority,
+        delegate.authority
+      );
+      await owner.runTx(tx);
+    } else {
+      await tx.confirm();
+    }
 
     return new TokenOwnerRecordHelper(
       realm,
       owner,
+      delegate,
       side,
       await getTokenOwnerRecord(realm.provider.connection, tokenOwnerRecord)
     );
@@ -101,19 +120,33 @@ export class TokenOwnerRecordHelper {
     connection,
     address,
     realm,
+    delegate,
   }: {
     connection: Connection;
     address: PublicKey;
     realm: RealmHelper;
+    delegate?: SignerHelper;
   }) {
     const data = await getTokenOwnerRecord(connection, address);
-    return new TokenOwnerRecordHelper(
-      realm,
-      new PDASigner(data.account.governingTokenOwner),
-      data.account.governingTokenMint.equals(realm.communityMint.address)
-        ? 'community'
-        : 'council',
-      data
-    );
+    if (delegate) {
+      if (
+        !data.account.governanceDelegate ||
+        !data.account.governanceDelegate.equals(delegate.authority)
+      ) {
+        throw new Error('Wrong delegate');
+      }
+    } else if (data.account.governanceDelegate) {
+      delegate = new PDASigner(data.account.governanceDelegate);
+    }
+    if (data.account.governanceDelegate && delegate)
+      return new TokenOwnerRecordHelper(
+        realm,
+        new PDASigner(data.account.governingTokenOwner),
+        delegate,
+        data.account.governingTokenMint.equals(realm.communityMint.address)
+          ? 'community'
+          : 'council',
+        data
+      );
   }
 }
