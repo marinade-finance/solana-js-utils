@@ -193,6 +193,9 @@ export class ProposalHelper {
     tokenOwnerRecord: TokenOwnerRecordHelper;
     voterWeightRecord?: PublicKey;
   }) {
+    const signer = tokenOwnerRecord.owner.canSign
+      ? tokenOwnerRecord.owner
+      : tokenOwnerRecord.delegate!;
     const tx = new TransactionEnvelope(tokenOwnerRecord.provider, []);
     await withCastVote(
       tx.instructions,
@@ -203,7 +206,7 @@ export class ProposalHelper {
       this.address,
       this.ownerRecord.address,
       tokenOwnerRecord.address,
-      tokenOwnerRecord.owner.authority,
+      signer.authority,
       tokenOwnerRecord.mint.address,
       new Vote({
         voteType: VoteKind.Approve,
@@ -220,7 +223,7 @@ export class ProposalHelper {
       voterWeightRecord
     );
 
-    await tokenOwnerRecord.owner.runTx(tx);
+    await signer.runTx(tx);
   }
 
   async execute() {
