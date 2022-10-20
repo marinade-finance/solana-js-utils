@@ -138,15 +138,14 @@ export class TokenOwnerRecordHelper {
     } else if (data.account.governanceDelegate) {
       delegate = new PDASigner(data.account.governanceDelegate);
     }
-    if (data.account.governanceDelegate && delegate)
-      return new TokenOwnerRecordHelper(
-        realm,
-        new PDASigner(data.account.governingTokenOwner),
-        delegate,
-        data.account.governingTokenMint.equals(realm.communityMint.address)
-          ? 'community'
-          : 'council',
-        data
-      );
+    return new TokenOwnerRecordHelper(
+      realm,
+      new PDASigner(data.account.governingTokenOwner),
+      delegate,
+      data.account.governingTokenMint.equals(realm.communityMint.address)
+        ? 'community'
+        : 'council',
+      data
+    );
   }
 }
