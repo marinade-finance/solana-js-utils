@@ -189,9 +189,11 @@ export class ProposalHelper {
   async castVote({
     tokenOwnerRecord,
     voterWeightRecord,
+    maxVoterWeightRecord,
   }: {
     tokenOwnerRecord: TokenOwnerRecordHelper;
     voterWeightRecord?: PublicKey;
+    maxVoterWeightRecord?: PublicKey;
   }) {
     const signer = tokenOwnerRecord.owner.canSign
       ? tokenOwnerRecord.owner
@@ -220,7 +222,8 @@ export class ProposalHelper {
         veto: undefined,
       }),
       this.provider.wallet.publicKey,
-      voterWeightRecord
+      voterWeightRecord,
+      maxVoterWeightRecord
     );
 
     await signer.runTx(tx);
