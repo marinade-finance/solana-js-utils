@@ -107,6 +107,7 @@ export class GovernanceHelper {
         minInstructionHoldUpTime: 0,
         maxVotingTime: 3600,
         minCouncilTokensToCreateProposal: new BN(1),
+        communityVoteTipping: VoteTipping.Disabled,
       }),
       tokenOwnerRecord.address,
       tokenOwnerRecord.provider.wallet.publicKey,

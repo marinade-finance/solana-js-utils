@@ -46,6 +46,7 @@ export class RealmHelper {
     name = Math.random().toString(),
     communityMint,
     communityWeightAddin,
+    maxCommunityWeightAddin,
     councilMint,
     admin = new WalletSignerHelper(provider.wallet),
   }: {
@@ -55,6 +56,7 @@ export class RealmHelper {
     name?: string;
     communityMint: MintHelper;
     communityWeightAddin?: PublicKey;
+    maxCommunityWeightAddin?: PublicKey;
     councilMint: MintHelper;
     admin?: SignerHelper;
   }) {
@@ -77,7 +79,7 @@ export class RealmHelper {
       new BN(0),
       new GoverningTokenConfigAccountArgs({
         voterWeightAddin: communityWeightAddin,
-        maxVoterWeightAddin: undefined,
+        maxVoterWeightAddin: maxCommunityWeightAddin,
         tokenType: GoverningTokenType.Liquid,
       }),
       undefined
