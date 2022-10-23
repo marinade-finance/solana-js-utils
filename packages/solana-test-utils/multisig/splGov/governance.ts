@@ -89,9 +89,11 @@ export class GovernanceHelper {
   static async create({
     tokenOwnerRecord,
     kedgeree,
+    communityVoteTipping = VoteTipping.Early,
   }: {
     tokenOwnerRecord: TokenOwnerRecordHelper;
     kedgeree: KedgereeSDK;
+    communityVoteTipping?: VoteTipping;
   }) {
     let tx = new TransactionEnvelope(tokenOwnerRecord.provider, []);
     const governance = await withCreateGovernance(
@@ -107,7 +109,7 @@ export class GovernanceHelper {
         minInstructionHoldUpTime: 0,
         maxVotingTime: 3600,
         minCouncilTokensToCreateProposal: new BN(1),
-        communityVoteTipping: VoteTipping.Disabled,
+        communityVoteTipping,
       }),
       tokenOwnerRecord.address,
       tokenOwnerRecord.provider.wallet.publicKey,
