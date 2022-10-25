@@ -21,7 +21,7 @@ export class WalletSignerHelper implements SignerHelper {
   }
 
   async runTx(tx: TransactionEnvelope): Promise<TransactionReceipt[]> {
-    const result = [];
+    const result: TransactionReceipt[] = [];
     for (const part of tx.partition()) {
       result.push(await part.confirm());
     }
@@ -46,7 +46,7 @@ export class KeypairSignerHelper implements SignerHelper {
 
   async runTx(tx: TransactionEnvelope): Promise<TransactionReceipt[]> {
     this.signTx(tx);
-    const result = [];
+    const result: TransactionReceipt[] = [];
     for (const part of tx.partition()) {
       result.push(await part.confirm());
     }
