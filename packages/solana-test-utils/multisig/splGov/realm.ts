@@ -11,7 +11,7 @@ import {
   withCreateRealm,
   withCreateTokenOwnerRecord,
   withDepositGoverningTokens,
-} from '@solana/spl-governance';
+} from '@marinade.finance/spl-governance';
 import { Provider, TransactionEnvelope } from '@saberhq/solana-contrib';
 import BN from 'bn.js';
 import {

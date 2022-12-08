@@ -6,7 +6,7 @@ import {
   withCreateTokenOwnerRecord,
   withDepositGoverningTokens,
   withSetGovernanceDelegate,
-} from '@solana/spl-governance';
+} from '@marinade.finance/spl-governance';
 import { Connection, PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
 import { getAssociatedTokenAddress } from 'solana-spl-token-modern';

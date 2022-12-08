@@ -14,7 +14,7 @@ import {
   withCreateProposal,
   withInsertTransaction,
   withSignOffProposal,
-} from '@solana/spl-governance';
+} from '@marinade.finance/spl-governance';
 
 export class SplGovernanceMiddleware extends MultisigMiddlewareBase {
   private constructor(

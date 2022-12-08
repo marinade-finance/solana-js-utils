@@ -20,7 +20,7 @@ import {
   withExecuteTransaction,
   withInsertTransaction,
   withSignOffProposal,
-} from '@solana/spl-governance';
+} from '@marinade.finance/spl-governance';
 import {
   Connection,
   Keypair,

@@ -10,7 +10,7 @@ import {
   ProgramAccount,
   PROGRAM_VERSION_V3,
   getNativeTreasuryAddress,
-} from '@solana/spl-governance';
+} from '@marinade.finance/spl-governance';
 import { LAMPORTS_PER_SOL, PublicKey, SystemProgram } from '@solana/web3.js';
 import BN from 'bn.js';
 import { RealmHelper } from './realm';

@@ -6,7 +6,7 @@ import { MultisigMiddlewareBase } from './MultisigMiddlewareBase';
 import { SplGovernanceMiddleware } from './SplGovernanceMiddleware';
 import { KedgereeSDK } from '@marinade.finance/kedgeree-sdk';
 import { encode } from '@project-serum/anchor/dist/cjs/utils/bytes/utf8';
-import { PROGRAM_VERSION_V2 } from '@solana/spl-governance';
+import { PROGRAM_VERSION_V2 } from '@marinade.finance/spl-governance';
 
 export async function installMultisigMiddleware({
   middleware,

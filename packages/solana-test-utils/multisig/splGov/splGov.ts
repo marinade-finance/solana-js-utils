@@ -9,7 +9,7 @@ import {
   getProposalsByGovernance,
   Governance,
   ProposalState,
-} from '@solana/spl-governance';
+} from '@marinade.finance/spl-governance';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
 import { MintHelper } from '../../mint';

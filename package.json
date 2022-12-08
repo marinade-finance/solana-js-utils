@@ -4,14 +4,14 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "gts lint",
     "clean": "gts clean",
-    "build": "tsc",
+    "compile": "tsc",
     "fix": "gts fix",
     "prepare": "pnpm compile",
     "pretest": "pnpm compile",
     "posttest": "pnpm lint",
-    "publish-cli": "pnpm build && pnpm publish build/packages/solana-cli-utils",
-    "publish-test": "pnpm build && pnpm publish build/packages/solana-test-utils",
-    "publish-all": "pnpm build && pnpm publish build/packages/solana-cli-utils && pnpm publish build/packages/solana-test-utils"
+    "publish-cli": "pnpm compile && pnpm publish build/packages/solana-cli-utils",
+    "publish-test": "pnpm compile && pnpm publish build/packages/solana-test-utils",
+    "publish-all": "pnpm compile && pnpm publish build/packages/solana-cli-utils && pnpm publish build/packages/solana-test-utils"
   },
   "keywords": [],
   "author": "",
