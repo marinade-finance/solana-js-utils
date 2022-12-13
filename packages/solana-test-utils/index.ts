@@ -7,3 +7,4 @@ export { shellMatchers };
 export * from './multisig';
 export * from './quarry';
 export * from './signer';
+export * from './nft';
