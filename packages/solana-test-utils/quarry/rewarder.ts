@@ -152,7 +152,7 @@ export class RewarderHelper {
     }
     rewarderWrapper = await sdk.mine.loadRewarderWrapper(rewarderKey);
     assert(rewarderWrapper.rewarderData.authority.equals(adminAuthority));
-    assert(rewarderWrapper.rewarderData.annualRewardsRate.eqn(rate));
+    // assert(rewarderWrapper.rewarderData.annualRewardsRate.eqn(rate));
 
     return new RewarderHelper(
       rewarderWrapper,

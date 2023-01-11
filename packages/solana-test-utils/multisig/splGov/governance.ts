@@ -90,10 +90,12 @@ export class GovernanceHelper {
     tokenOwnerRecord,
     kedgeree,
     communityVoteTipping = VoteTipping.Early,
+    maxVotingTime = 3600,
   }: {
     tokenOwnerRecord: TokenOwnerRecordHelper;
     kedgeree: KedgereeSDK;
     communityVoteTipping?: VoteTipping;
+    maxVotingTime?: number;
   }) {
     let tx = new TransactionEnvelope(tokenOwnerRecord.provider, []);
     const governance = await withCreateGovernance(
@@ -107,7 +109,7 @@ export class GovernanceHelper {
         councilVoteTipping: VoteTipping.Early,
         minCommunityTokensToCreateProposal: new BN(1),
         minInstructionHoldUpTime: 0,
-        maxVotingTime: 3600,
+        maxVotingTime,
         minCouncilTokensToCreateProposal: new BN(1),
         communityVoteTipping,
       }),
