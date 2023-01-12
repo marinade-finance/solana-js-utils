@@ -142,7 +142,13 @@ export class GovernanceHelper {
       })
     );
 
-    await tx.confirm();
+    if (tokenOwnerRecord.owner.canSign) {
+      await tokenOwnerRecord.owner.runTx(tx);
+    } else if (tokenOwnerRecord.delegate) {
+      await tokenOwnerRecord.delegate.runTx(tx);
+    } else {
+      throw new Error('TOR can not sign');
+    }
     return new GovernanceHelper(
       tokenOwnerRecord.realm,
       await getGovernance(tokenOwnerRecord.provider.connection, governance),
