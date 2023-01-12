@@ -147,7 +147,7 @@ export class ProposalHelper {
     const tx = new TransactionEnvelope(governance.provider, []);
     for (
       let index = 0;
-      index < data.account.options[0].instructionsCount || 0;
+      index < data.account.options[0]?.instructionsCount || 0;
       index++
     ) {
       const proposalTransaction = await getProposalTransactionAddress(
