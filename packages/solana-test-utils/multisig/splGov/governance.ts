@@ -127,7 +127,7 @@ export class GovernanceHelper {
       }),
       tokenOwnerRecord.address,
       tokenOwnerRecord.provider.wallet.publicKey,
-      tokenOwnerRecord.provider.wallet.publicKey
+      createAuthority.authority
     );
 
     const { tx: createPDAInfoTx, key: governanceWallet } =
