@@ -17,6 +17,7 @@ import { RealmHelper } from './realm';
 import { TokenOwnerRecordHelper } from './tokenOwnerRecord';
 import { KedgereeSDK } from '@marinade.finance/kedgeree-sdk';
 import { encode } from '@project-serum/anchor/dist/cjs/utils/bytes/utf8';
+import { SignerHelper, WalletSignerHelper } from '../../signer';
 
 function createGovernanceThresholds(
   programVersion: number,
@@ -97,6 +98,17 @@ export class GovernanceHelper {
     communityVoteTipping?: VoteTipping;
     maxVotingTime?: number;
   }) {
+    let createAuthority: SignerHelper = new WalletSignerHelper(
+      tokenOwnerRecord.provider.wallet
+    );
+    if (tokenOwnerRecord.owner.canSign) {
+      createAuthority = tokenOwnerRecord.owner;
+    } else if (tokenOwnerRecord.delegate && tokenOwnerRecord.delegate.canSign) {
+      createAuthority = tokenOwnerRecord.delegate;
+    } else {
+      throw new Error('TOR can not sign');
+    }
+
     let tx = new TransactionEnvelope(tokenOwnerRecord.provider, []);
     const governance = await withCreateGovernance(
       tx.instructions,
@@ -142,13 +154,7 @@ export class GovernanceHelper {
       })
     );
 
-    if (tokenOwnerRecord.owner.canSign) {
-      await tokenOwnerRecord.owner.runTx(tx);
-    } else if (tokenOwnerRecord.delegate) {
-      await tokenOwnerRecord.delegate.runTx(tx);
-    } else {
-      throw new Error('TOR can not sign');
-    }
+    await createAuthority.runTx(tx);
     return new GovernanceHelper(
       tokenOwnerRecord.realm,
       await getGovernance(tokenOwnerRecord.provider.connection, governance),
