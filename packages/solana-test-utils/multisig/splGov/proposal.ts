@@ -191,10 +191,12 @@ export class ProposalHelper {
     tokenOwnerRecord,
     voterWeightRecord,
     maxVoterWeightRecord,
+    vote = [100],
   }: {
     tokenOwnerRecord: TokenOwnerRecordHelper;
     voterWeightRecord?: PublicKey;
     maxVoterWeightRecord?: PublicKey;
+    vote?: number[];
   }) {
     const signer = tokenOwnerRecord.owner.canSign
       ? tokenOwnerRecord.owner
@@ -213,12 +215,13 @@ export class ProposalHelper {
       tokenOwnerRecord.mint.address,
       new Vote({
         voteType: VoteKind.Approve,
-        approveChoices: [
-          new VoteChoice({
-            rank: 0,
-            weightPercentage: 100,
-          }),
-        ],
+        approveChoices: vote.map(
+          weightPercentage =>
+            new VoteChoice({
+              rank: 0,
+              weightPercentage,
+            })
+        ),
         deny: undefined,
         veto: undefined,
       }),
