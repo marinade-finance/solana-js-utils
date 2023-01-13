@@ -297,8 +297,9 @@ export class ProposalHelper {
       if (!err) {
         break;
       }
-      if (!err.toString().includes('535')) {
-        throw new Error(err.toString());
+      const errStr = JSON.stringify(err);
+      if (!errStr.includes('535')) {
+        throw new Error(errStr);
       }
     }
     await tx.confirm();
