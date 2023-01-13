@@ -292,6 +292,18 @@ export class ProposalHelper {
       this.ownerRecord.address,
       this.ownerRecord.mint.address
     );
+    for (;;) {
+      const err = (await tx.simulate()).value.err;
+      if (!err) {
+        break;
+      }
+      if (typeof err !== 'string') {
+        throw new Error('Unknown error');
+      }
+      if (!err.includes('0x217')) {
+        throw new Error(err);
+      }
+    }
     await tx.confirm();
     await this.reload();
   }
