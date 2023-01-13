@@ -18,6 +18,7 @@ import {
   withCastVote,
   withCreateProposal,
   withExecuteTransaction,
+  withFinalizeVote,
   withInsertTransaction,
   withSignOffProposal,
 } from '@marinade.finance/spl-governance';
@@ -274,6 +275,22 @@ export class ProposalHelper {
       result.push(await part.confirm());
     }
     return result;
+  }
+
+  async finalize() {
+    const tx = new TransactionEnvelope(this.ownerRecord.provider, []);
+    await withFinalizeVote(
+      tx.instructions,
+      this.splGovId,
+      this.splGovVersion,
+      this.governance.realm.address,
+      this.governance.data.pubkey,
+      this.address,
+      this.ownerRecord.address,
+      this.ownerRecord.mint.address
+    );
+    await tx.confirm();
+    await this.reload();
   }
 
   async reload() {
