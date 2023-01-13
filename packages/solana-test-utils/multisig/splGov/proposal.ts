@@ -297,11 +297,8 @@ export class ProposalHelper {
       if (!err) {
         break;
       }
-      if (typeof err !== 'string') {
-        throw new Error('Unknown error');
-      }
-      if (!err.includes('0x217')) {
-        throw new Error(err);
+      if (!err.toString().includes('535')) {
+        throw new Error(err.toString());
       }
     }
     await tx.confirm();
