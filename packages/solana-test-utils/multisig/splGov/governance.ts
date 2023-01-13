@@ -92,11 +92,13 @@ export class GovernanceHelper {
     kedgeree,
     communityVoteTipping = VoteTipping.Early,
     maxVotingTime = 3600,
+    communityYesVotePercentage = 40,
   }: {
     tokenOwnerRecord: TokenOwnerRecordHelper;
     kedgeree: KedgereeSDK;
     communityVoteTipping?: VoteTipping;
     maxVotingTime?: number;
+    communityYesVotePercentage?: number;
   }) {
     let createAuthority: SignerHelper = new WalletSignerHelper(
       tokenOwnerRecord.provider.wallet
@@ -117,7 +119,10 @@ export class GovernanceHelper {
       tokenOwnerRecord.realm.address,
       undefined,
       new GovernanceConfig({
-        ...createGovernanceThresholds(tokenOwnerRecord.splGovVersion, 40),
+        ...createGovernanceThresholds(
+          tokenOwnerRecord.splGovVersion,
+          communityYesVotePercentage
+        ),
         councilVoteTipping: VoteTipping.Early,
         minCommunityTokensToCreateProposal: new BN(1),
         minInstructionHoldUpTime: 0,
