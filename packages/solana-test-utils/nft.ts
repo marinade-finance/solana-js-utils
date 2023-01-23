@@ -1,11 +1,10 @@
 import { Provider, TransactionEnvelope } from '@saberhq/solana-contrib';
-import { PublicKey, Signer } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import {
   Collection,
   createCreateMasterEditionV3Instruction,
   createCreateMetadataAccountV3Instruction,
   createUpdateMetadataAccountV2Instruction,
-  Creator,
   Uses,
   PROGRAM_ID as MPL_ID,
 } from '@metaplex-foundation/mpl-token-metadata';
@@ -35,7 +34,7 @@ export interface NftParams {
   symbol: string;
   uri: string;
   sellerFeeBasisPoints: number;
-  creator?: SignerHelper;
+  creators?: SignerHelper[];
   collection: Collection | null;
   uses: Uses | null;
 }
@@ -43,7 +42,7 @@ export interface NftParams {
 export class NftHelper {
   constructor(
     public readonly mint: MintHelper,
-    public readonly creator: SignerHelper
+    public readonly creators: SignerHelper[]
   ) {}
 
   get address() {
@@ -57,7 +56,7 @@ export class NftHelper {
       symbol,
       uri,
       sellerFeeBasisPoints,
-      creator = new WalletSignerHelper(provider.wallet),
+      creators = [new WalletSignerHelper(provider.wallet)],
       collection,
       uses,
     },
@@ -86,7 +85,7 @@ export class NftHelper {
           mint: mint.address,
           mintAuthority: provider.wallet.publicKey,
           payer: provider.wallet.publicKey,
-          updateAuthority: creator.authority,
+          updateAuthority: creators[0].authority,
         },
         {
           createMetadataAccountArgsV3: {
@@ -95,13 +94,11 @@ export class NftHelper {
               symbol,
               uri,
               sellerFeeBasisPoints,
-              creators: [
-                {
-                  address: creator.authority,
-                  verified: true,
-                  share: 100,
-                },
-              ],
+              creators: creators.map((creator, index) => ({
+                address: creator.authority,
+                verified: index === 0,
+                share: index === 0 ? 100 : 0,
+              })),
               collection,
               uses,
             },
@@ -114,7 +111,7 @@ export class NftHelper {
         {
           edition: await masterEditionAddress(mint.address),
           mint: mint.address,
-          updateAuthority: creator.authority,
+          updateAuthority: creators[0].authority,
           mintAuthority: provider.wallet.publicKey,
           payer: provider.wallet.publicKey,
           metadata,
@@ -144,9 +141,9 @@ export class NftHelper {
             ]
           : []),*/,
     ]);
-    await creator.runTx(tx);
+    await creators[0].runTx(tx);
 
-    return new NftHelper(mint, creator);
+    return new NftHelper(mint, creators);
   }
 
   async setUpdateAuthority(updateAuthority: PublicKey) {
@@ -155,7 +152,7 @@ export class NftHelper {
       createUpdateMetadataAccountV2Instruction(
         {
           metadata,
-          updateAuthority: this.creator.authority,
+          updateAuthority: this.creators[0].authority,
         },
         {
           updateMetadataAccountArgsV2: {
@@ -167,6 +164,6 @@ export class NftHelper {
         }
       ),
     ]);
-    await this.creator.runTx(tx);
+    await this.creators[0].runTx(tx);
   }
 }
