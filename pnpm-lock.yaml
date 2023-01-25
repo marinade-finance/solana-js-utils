@@ -21,7 +21,7 @@ importers:
     specifiers:
       '@gokiprotocol/client': ^0.11.1
       '@marinade.finance/kedgeree-sdk': ^1.0.3
-      '@marinade.finance/spl-governance': ^0.3.17
+      '@marinade.finance/spl-governance': ^0.3.20
       '@project-serum/anchor': ^0.24
       '@saberhq/anchor-contrib': ^1.13
       '@saberhq/solana-contrib': ^1.14.4
@@ -38,7 +38,7 @@ importers:
       jsbi: ^4.3.0
       mz: ^2.7.0
     dependencies:
-      '@marinade.finance/spl-governance': 0.3.17
+      '@marinade.finance/spl-governance': 0.3.20
       '@project-serum/anchor': 0.24.2
       '@saberhq/anchor-contrib': 1.14.11_szv4yae6pprvqbcldlfyx2oyu4
       expand-tilde: 2.0.2
@@ -63,7 +63,7 @@ importers:
       '@gokiprotocol/client': ^0.11.1
       '@marinade.finance/kedgeree-sdk': ^1.0.3
       '@marinade.finance/solana-cli-utils': workspace:^0.0.65
-      '@marinade.finance/spl-governance': ^0.3.17
+      '@marinade.finance/spl-governance': ^0.3.20
       '@metaplex-foundation/mpl-token-metadata': ^2.5.2
       '@project-serum/anchor': ^0.24
       '@quarryprotocol/quarry-sdk': ^5.2.0
@@ -86,6 +86,7 @@ importers:
       tmp-promise: ^3.0.3
     dependencies:
       '@marinade.finance/solana-cli-utils': link:../solana-cli-utils
+      '@metaplex-foundation/mpl-token-metadata': 2.5.2
       '@project-serum/anchor': 0.24.2
       '@saberhq/anchor-contrib': 1.14.11_szv4yae6pprvqbcldlfyx2oyu4
       jest: 28.1.3_@types+node@18.11.11
@@ -97,8 +98,7 @@ importers:
     devDependencies:
       '@gokiprotocol/client': 0.11.1_53s7glmi6n7smcruty3kke47by
       '@marinade.finance/kedgeree-sdk': 1.0.3_gk3xpbhc2xxcmreqfk6bkf6y6q
-      '@marinade.finance/spl-governance': 0.3.17
-      '@metaplex-foundation/mpl-token-metadata': 2.5.2
+      '@marinade.finance/spl-governance': 0.3.20
       '@quarryprotocol/quarry-sdk': 5.3.0_wborjfwmah4aphyk33h6a7uvie
       '@saberhq/solana-contrib': 1.14.11_abjec7wo3i2uf4yz6l5hxgnmwq
       '@saberhq/token-utils': 1.14.11_epzk642kxlmxv4uf46fbif3igu
@@ -792,8 +792,8 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@marinade.finance/spl-governance/0.3.17:
-    resolution: {integrity: sha512-dANv735JVgvRfTn4xU0omTjoI51BN4zyLMJICLOu4WcxZEh3KHGIHrDq2T7BXWPNE/dRFgVBOM29TTo2P5ct/A==}
+  /@marinade.finance/spl-governance/0.3.20:
+    resolution: {integrity: sha512-8IQjNtVuHHKKO5VHDXHf5kl7WFbdYMmZWGVL4Xw/0lqXldHoYVAs4apx1GCAMpYprYaiKjcucCJKj4d+xEq69Q==}
     dependencies:
       '@solana/web3.js': 1.70.0
       axios: 1.2.1
@@ -820,7 +820,7 @@ packages:
       - encoding
       - supports-color
       - utf-8-validate
-    dev: true
+    dev: false
 
   /@metaplex-foundation/beet/0.7.1:
     resolution: {integrity: sha512-hNCEnS2WyCiYyko82rwuISsBY3KYpe828ubsd2ckeqZr7tl0WVLivGkoyA/qdiaaHEBGdGl71OpfWa2rqL3DiA==}
@@ -830,11 +830,11 @@ packages:
       debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
-    dev: true
+    dev: false
 
   /@metaplex-foundation/cusper/0.0.2:
     resolution: {integrity: sha512-S9RulC2fFCFOQraz61bij+5YCHhSO9llJegK8c8Y6731fSi6snUSQJdCUqYS8AIgR0TKbQvdvgSyIIdbDFZbBA==}
-    dev: true
+    dev: false
 
   /@metaplex-foundation/mpl-token-metadata/2.5.2:
     resolution: {integrity: sha512-lAjQjj2gGtyLq8MOkp4tWZSC5DK9NWgPd3EoH0KQ9gMs3sKIJRik0CBaZg+JA0uLwzkiErY2Izus4vbWtRADJQ==}
@@ -851,7 +851,7 @@ packages:
       - encoding
       - supports-color
       - utf-8-validate
-    dev: true
+    dev: false
 
   /@noble/ed25519/1.7.1:
     resolution: {integrity: sha512-Rk4SkJFaXZiznFyC/t77Q0NKS4FL7TLJJsVG2V2oiEq3kJVeTdxysEe/yRWSpnWMe808XRDJ+VFh5pt/FN5plw==}
@@ -1027,6 +1027,7 @@ packages:
       - bufferutil
       - encoding
       - utf-8-validate
+    dev: false
 
   /@solana/buffer-layout/3.0.0:
     resolution: {integrity: sha512-MVdgAKKL39tEs0l8je0hKaXLQFb7Rdfb0Xg2LjFZd8Lfdazkg6xiS98uAZrEKvaoF3i4M95ei9RydkGIDMeo3w==}
@@ -1073,6 +1074,7 @@ packages:
       - bufferutil
       - encoding
       - utf-8-validate
+    dev: false
 
   /@solana/web3.js/1.70.0:
     resolution: {integrity: sha512-HwdI9LaHaszfpzgxJI44iP68mJWUeqK1TeSheKQsGkH5zlVyGWGmim50MyDWu2vXiuL8Akf2xEMSrDYyLordgg==}
@@ -1432,7 +1434,7 @@ packages:
 
   /ansicolors/0.3.2:
     resolution: {integrity: sha512-QXu7BPrP29VllRxH8GwB7x5iX5qWKAAMLqKQGWTeLWVlNHNOpVMJ91dsxQAIWXpjuW5wqvxu3Jd/nRjrJ+0pqg==}
-    dev: true
+    dev: false
 
   /any-promise/1.3.0:
     resolution: {integrity: sha512-7UvmKalWRt1wgjL1RrGxoSJW/0QZFIegpeGvZG9kjp8vrRu55XTHbwnqq2GpXm9uLbcuhxm3IqX9OB4MZR1b2A==}
@@ -1560,7 +1562,7 @@ packages:
 
   /base-x/4.0.0:
     resolution: {integrity: sha512-FuwxlW4H5kh37X/oW59pwTzzTKRzfrrQwhmyspRM7swOEZcHtDZSCt45U6oKgtuFE+WYPblePMVIPR4RZrh/hw==}
-    dev: true
+    dev: false
 
   /base64-js/1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
@@ -1634,7 +1636,7 @@ packages:
     resolution: {integrity: sha512-r+ihvQJvahgYT50JD05dyJNKlmmSlMoOGwn1lCcEzanPglg7TxYjioQUYehQ9mAR/+hOSd2jRc/Z2y5UxBymvQ==}
     dependencies:
       base-x: 4.0.0
-    dev: true
+    dev: false
 
   /bser/2.1.1:
     resolution: {integrity: sha512-gQxTNE/GAfIIrmHLUE3oJyp5FO6HRBfhjnw4/wMmA63ZGDJnWBmgY/lyQBpnDUkGmAhbSe39tx2d/iTOAfglwQ==}
