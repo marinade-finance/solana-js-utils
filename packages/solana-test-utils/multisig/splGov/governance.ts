@@ -129,6 +129,8 @@ export class GovernanceHelper {
         maxVotingTime,
         minCouncilTokensToCreateProposal: new BN(1),
         communityVoteTipping,
+        votingCoolOffTime: 0,
+        depositExemptProposalCount: 0,
       }),
       tokenOwnerRecord.address,
       tokenOwnerRecord.provider.wallet.publicKey,
