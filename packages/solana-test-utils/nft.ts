@@ -62,16 +62,18 @@ export class NftHelper {
     },
     // updateAuthority = provider.wallet.publicKey,
     tokenOwner = provider.wallet.publicKey,
+    freezeAuthority = new WalletSignerHelper(provider.wallet),
   }: {
     provider: Provider;
     params: NftParams;
     // updateAuthority?: PublicKey;
     tokenOwner?: PublicKey;
+    freezeAuthority?: SignerHelper;
   }): Promise<NftHelper> {
     const mint = await MintHelper.create({
       provider,
       digits: 0,
-      freezeAuthority: new WalletSignerHelper(provider.wallet),
+      freezeAuthority,
     });
     await mint.mintTo({
       amount: new BN(1),
