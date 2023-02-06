@@ -89,7 +89,7 @@ export class NftHelper {
           mint: mint.address,
           mintAuthority: provider.wallet.publicKey,
           payer: provider.wallet.publicKey,
-          updateAuthority: creators[0].authority,
+          updateAuthority: creators[0]?.authority || provider.wallet.publicKey,
         },
         {
           createMetadataAccountArgsV3: {
@@ -98,11 +98,14 @@ export class NftHelper {
               symbol,
               uri,
               sellerFeeBasisPoints,
-              creators: creators.map((creator, index) => ({
-                address: creator.authority,
-                verified: index === 0,
-                share: index === 0 ? 100 : 0,
-              })),
+              creators:
+                creators.length > 0
+                  ? creators.map((creator, index) => ({
+                      address: creator.authority,
+                      verified: index === 0,
+                      share: index === 0 ? 100 : 0,
+                    }))
+                  : null,
               collection,
               uses,
             },
@@ -118,7 +121,8 @@ export class NftHelper {
           {
             edition: await masterEditionAddress(mint.address),
             mint: mint.address,
-            updateAuthority: creators[0].authority,
+            updateAuthority:
+              creators[0]?.authority || provider.wallet.publicKey,
             mintAuthority: provider.wallet.publicKey,
             payer: provider.wallet.publicKey,
             metadata,
@@ -151,7 +155,11 @@ export class NftHelper {
               ),
             ]
           : []),*/
-    await creators[0].runTx(tx);
+    if (creators.length > 0) {
+      await creators[0].runTx(tx);
+    } else {
+      await tx.confirm();
+    }
 
     return new NftHelper(mint, creators);
   }
@@ -162,7 +170,8 @@ export class NftHelper {
       createUpdateMetadataAccountV2Instruction(
         {
           metadata,
-          updateAuthority: this.creators[0].authority,
+          updateAuthority:
+            this.creators[0]?.authority || this.mint.provider.wallet.publicKey,
         },
         {
           updateMetadataAccountArgsV2: {
@@ -174,6 +183,10 @@ export class NftHelper {
         }
       ),
     ]);
-    await this.creators[0].runTx(tx);
+    if (this.creators[0]) {
+      await this.creators[0].runTx(tx);
+    } else {
+      await tx.confirm();
+    }
   }
 }
