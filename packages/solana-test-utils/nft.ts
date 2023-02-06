@@ -62,7 +62,7 @@ export class NftHelper {
     },
     // updateAuthority = provider.wallet.publicKey,
     tokenOwner = provider.wallet.publicKey,
-    freezeAuthority = new WalletSignerHelper(provider.wallet),
+    freezeAuthority,
   }: {
     provider: Provider;
     params: NftParams;
@@ -73,14 +73,16 @@ export class NftHelper {
     const mint = await MintHelper.create({
       provider,
       digits: 0,
-      freezeAuthority,
+      freezeAuthority:
+        freezeAuthority || new WalletSignerHelper(provider.wallet),
     });
     await mint.mintTo({
       amount: new BN(1),
       owner: tokenOwner,
     });
     const metadata = await metadataAddress(mint.address);
-    const tx = new TransactionEnvelope(provider, [
+    const tx = new TransactionEnvelope(provider, []);
+    tx.append(
       createCreateMetadataAccountV3Instruction(
         {
           metadata,
@@ -108,22 +110,29 @@ export class NftHelper {
             collectionDetails: null,
           },
         }
-      ),
-      createCreateMasterEditionV3Instruction(
-        {
-          edition: await masterEditionAddress(mint.address),
-          mint: mint.address,
-          updateAuthority: creators[0].authority,
-          mintAuthority: provider.wallet.publicKey,
-          payer: provider.wallet.publicKey,
-          metadata,
-        },
-        {
-          createMasterEditionArgs: {
-            maxSupply: new BN(0),
+      )
+    );
+    if (!freezeAuthority) {
+      tx.append(
+        createCreateMasterEditionV3Instruction(
+          {
+            edition: await masterEditionAddress(mint.address),
+            mint: mint.address,
+            updateAuthority: creators[0].authority,
+            mintAuthority: provider.wallet.publicKey,
+            payer: provider.wallet.publicKey,
+            metadata,
           },
-        }
-      ) /*
+          {
+            createMasterEditionArgs: {
+              maxSupply: new BN(0),
+            },
+          }
+        )
+      );
+    }
+
+    /*
         ...(!updateAuthority.equals(creator?.publicKey || provider.wallet.publicKey)
           ? [
               createUpdateMetadataAccountV2Instruction(
@@ -141,8 +150,7 @@ export class NftHelper {
                 }
               ),
             ]
-          : []),*/,
-    ]);
+          : []),*/
     await creators[0].runTx(tx);
 
     return new NftHelper(mint, creators);
