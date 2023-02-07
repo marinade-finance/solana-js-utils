@@ -12,6 +12,12 @@ import { BN } from '@project-serum/anchor';
 import { encode } from '@project-serum/anchor/dist/cjs/utils/bytes/utf8';
 import { SignerHelper, WalletSignerHelper } from './signer';
 import { MintHelper } from './mint';
+import {
+  AuthorityType,
+  createFreezeAccountInstruction,
+  createSetAuthorityInstruction,
+  getAssociatedTokenAddressSync,
+} from 'solana-spl-token-modern';
 
 export async function metadataAddress(mint: PublicKey) {
   const [metadataAddress] = await PublicKey.findProgramAddress(
@@ -63,25 +69,41 @@ export class NftHelper {
     // updateAuthority = provider.wallet.publicKey,
     tokenOwner = provider.wallet.publicKey,
     freezeAuthority,
+    frozen = false,
   }: {
     provider: Provider;
     params: NftParams;
     // updateAuthority?: PublicKey;
     tokenOwner?: PublicKey;
     freezeAuthority?: SignerHelper;
+    frozen?: boolean;
   }): Promise<NftHelper> {
     const mint = await MintHelper.create({
       provider,
       digits: 0,
       freezeAuthority:
-        freezeAuthority || new WalletSignerHelper(provider.wallet),
+        (!frozen && freezeAuthority) || new WalletSignerHelper(provider.wallet),
     });
     await mint.mintTo({
       amount: new BN(1),
       owner: tokenOwner,
     });
-    const metadata = await metadataAddress(mint.address);
     const tx = new TransactionEnvelope(provider, []);
+    if (frozen) {
+      const tokenAccount = getAssociatedTokenAddressSync(
+        mint.address,
+        tokenOwner,
+        true
+      );
+      tx.append(
+        createFreezeAccountInstruction(
+          tokenAccount,
+          mint.address,
+          provider.wallet.publicKey
+        )
+      );
+    }
+    const metadata = await metadataAddress(mint.address);
     tx.append(
       createCreateMetadataAccountV3Instruction(
         {
@@ -132,6 +154,15 @@ export class NftHelper {
               maxSupply: new BN(0),
             },
           }
+        )
+      );
+    } else if (!freezeAuthority.authority.equals(provider.wallet.publicKey)) {
+      tx.append(
+        createSetAuthorityInstruction(
+          mint.address,
+          provider.wallet.publicKey,
+          AuthorityType.FreezeAccount,
+          freezeAuthority.authority
         )
       );
     }
