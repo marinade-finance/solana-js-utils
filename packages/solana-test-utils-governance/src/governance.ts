@@ -17,7 +17,7 @@ import { RealmHelper } from './realm';
 import { TokenOwnerRecordHelper } from './tokenOwnerRecord';
 import { KedgereeSDK } from '@marinade.finance/kedgeree-sdk';
 import { encode } from '@project-serum/anchor/dist/cjs/utils/bytes/utf8';
-import { SignerHelper, WalletSignerHelper } from '../../signer';
+import { SignerHelper, WalletSignerHelper } from '../../solana-test-utils/signer';
 
 function createGovernanceThresholds(
   programVersion: number,
