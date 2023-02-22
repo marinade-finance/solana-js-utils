@@ -6,5 +6,5 @@
     "esModuleInterop": true,
     "resolveJsonModule": true
   },
-  "include": ["packages/**/*.ts", "packages/*/package.json"]
+  "include": ["packages/**/*.ts", "packages/*/package.json", "scripts/runner.ts"]
 }
