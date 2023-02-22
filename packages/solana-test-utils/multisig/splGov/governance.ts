@@ -75,7 +75,14 @@ export class GovernanceHelper {
     return this.realm.provider;
   }
 
+  /**
+   * @deprecated use {@link address}
+   */
   get governanceAccount() {
+    return this.data.pubkey;
+  }
+
+  get address() {
     return this.data.pubkey;
   }
 
@@ -172,7 +179,7 @@ export class GovernanceHelper {
   async reload() {
     this.data = await getGovernance(
       this.provider.connection,
-      this.governanceAccount
+      this.address
     );
   }
 }

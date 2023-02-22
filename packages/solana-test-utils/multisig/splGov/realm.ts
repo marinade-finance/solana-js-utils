@@ -9,17 +9,9 @@ import {
   PROGRAM_VERSION_V2,
   Realm,
   withCreateRealm,
-  withCreateTokenOwnerRecord,
-  withDepositGoverningTokens,
 } from '@marinade.finance/spl-governance';
 import { Provider, TransactionEnvelope } from '@saberhq/solana-contrib';
 import BN from 'bn.js';
-import {
-  createAssociatedTokenAccount,
-  createAssociatedTokenAccountInstruction,
-  createTransferInstruction,
-  getAssociatedTokenAddress,
-} from 'solana-spl-token-modern';
 import { MintHelper } from '../../mint';
 import { SignerHelper, WalletSignerHelper } from '../../signer';
 
