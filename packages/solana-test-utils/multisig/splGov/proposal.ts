@@ -23,11 +23,9 @@ import {
   withSignOffProposal,
 } from '@marinade.finance/spl-governance';
 import {
-  Connection,
   Keypair,
   LAMPORTS_PER_SOL,
   PublicKey,
-  SystemInstruction,
   SystemProgram,
   TransactionInstruction,
 } from '@solana/web3.js';
@@ -68,6 +66,9 @@ export class ProposalHelper {
     descriptionLink,
     executable = new TransactionEnvelope(governance.provider, []),
     side,
+    voteType = VoteType.SINGLE_CHOICE,
+    options = ['test'],
+    useDenyOption = true,
   }: {
     ownerRecord: TokenOwnerRecordHelper;
     governance: GovernanceHelper;
@@ -75,6 +76,9 @@ export class ProposalHelper {
     descriptionLink: string;
     executable?: TransactionEnvelope;
     side: TokenOwnerRecordSide;
+    voteType?: VoteType;
+    options?: string[];
+    useDenyOption?: boolean;
   }) {
     const tx = new TransactionEnvelope(ownerRecord.provider, []);
     const proposal = await withCreateProposal(
@@ -92,9 +96,9 @@ export class ProposalHelper {
         : governance.realm.councilMint.address,
       ownerRecord.owner.authority,
       governance.data.account.proposalCount,
-      VoteType.SINGLE_CHOICE,
-      ['test'],
-      true,
+      voteType,
+      options,
+      useDenyOption,
       ownerRecord.provider.wallet.publicKey,
       undefined
     );
@@ -196,11 +200,26 @@ export class ProposalHelper {
     tokenOwnerRecord: TokenOwnerRecordHelper;
     voterWeightRecord?: PublicKey;
     maxVoterWeightRecord?: PublicKey;
-    vote?: number[];
+    vote?: number[] | Vote;
   }) {
     const signer = tokenOwnerRecord.owner.canSign
       ? tokenOwnerRecord.owner
       : tokenOwnerRecord.delegate!;
+    const castingVote: Vote = vote instanceof Vote
+      ? vote
+      : new Vote({
+          voteType: VoteKind.Approve,
+          approveChoices: vote.map(
+            weightPercentage =>
+              new VoteChoice({
+                rank: 0,
+                weightPercentage,
+              })
+          ),
+          deny: undefined,
+          veto: undefined,
+        });
+
     const tx = new TransactionEnvelope(tokenOwnerRecord.provider, []);
     await withCastVote(
       tx.instructions,
@@ -213,18 +232,7 @@ export class ProposalHelper {
       tokenOwnerRecord.address,
       signer.authority,
       tokenOwnerRecord.mint.address,
-      new Vote({
-        voteType: VoteKind.Approve,
-        approveChoices: vote.map(
-          weightPercentage =>
-            new VoteChoice({
-              rank: 0,
-              weightPercentage,
-            })
-        ),
-        deny: undefined,
-        veto: undefined,
-      }),
+      castingVote,
       this.provider.wallet.publicKey,
       voterWeightRecord,
       maxVoterWeightRecord
