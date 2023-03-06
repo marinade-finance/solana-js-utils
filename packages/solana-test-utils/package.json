@@ -27,7 +27,7 @@
   "devDependencies": {
     "@gokiprotocol/client": "^0.11.1",
     "@marinade.finance/kedgeree-sdk": "^1.0.3",
-    "@marinade.finance/spl-governance": "^0.3.20",
+    "@marinade.finance/spl-governance": "^0.3.25",
     "@quarryprotocol/quarry-sdk": "^5.2.0",
     "@saberhq/solana-contrib": "^1.14.4",
     "@saberhq/token-utils": "^1.14.4",
@@ -43,7 +43,7 @@
   "peerDependencies": {
     "@gokiprotocol/client": "^0.11.1",
     "@marinade.finance/kedgeree-sdk": "^1.0.3",
-    "@marinade.finance/spl-governance": "^0.3.20",
+    "@marinade.finance/spl-governance": "^0.3.25",
     "@quarryprotocol/quarry-sdk": "^5.2.0",
     "@saberhq/solana-contrib": "^1.14",
     "@saberhq/token-utils": "^1.14",

@@ -75,7 +75,7 @@ export class SplGovHelper implements MultisigHelper {
     const proposals = await getProposalsByGovernance(
       this.governance.provider.connection,
       this.governance.splGovId,
-      this.governance.governanceAccount
+      this.governance.address
     );
 
     const result: TransactionReceipt[] = [];

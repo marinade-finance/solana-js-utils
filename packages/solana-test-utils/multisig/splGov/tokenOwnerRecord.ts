@@ -93,10 +93,10 @@ export class TokenOwnerRecordHelper {
     );
   }
 
-  async deposit(amount: BN) {
+  async deposit(amount: InstanceType<typeof BN> | number) {
     const tx = new TransactionEnvelope(this.provider, []);
     await this.mint.mintTo({
-      amount,
+      amount: new BN(amount),
     });
     await withDepositGoverningTokens(
       tx.instructions,
@@ -111,7 +111,7 @@ export class TokenOwnerRecordHelper {
       this.owner.authority,
       this.provider.wallet.publicKey,
       this.provider.wallet.publicKey,
-      amount
+      new BN(amount)
     );
     await this.owner.runTx(tx);
   }
