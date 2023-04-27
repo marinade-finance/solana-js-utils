@@ -6,20 +6,12 @@ import {
   MintMaxVoteWeightSource,
   MintMaxVoteWeightSourceType,
   ProgramAccount,
-  PROGRAM_VERSION_V2,
+  PROGRAM_VERSION_V3,
   Realm,
   withCreateRealm,
-  withCreateTokenOwnerRecord,
-  withDepositGoverningTokens,
 } from '@marinade.finance/spl-governance';
 import { Provider, TransactionEnvelope } from '@saberhq/solana-contrib';
 import BN from 'bn.js';
-import {
-  createAssociatedTokenAccount,
-  createAssociatedTokenAccountInstruction,
-  createTransferInstruction,
-  getAssociatedTokenAddress,
-} from 'solana-spl-token-modern';
 import { MintHelper } from '../../mint';
 import { SignerHelper, WalletSignerHelper } from '../../signer';
 
@@ -42,7 +34,7 @@ export class RealmHelper {
   static async create({
     provider,
     splGovId = new PublicKey('GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw'),
-    splGovVersion = PROGRAM_VERSION_V2,
+    splGovVersion = PROGRAM_VERSION_V3,
     name = Math.random().toString(),
     communityMint,
     communityWeightAddin,

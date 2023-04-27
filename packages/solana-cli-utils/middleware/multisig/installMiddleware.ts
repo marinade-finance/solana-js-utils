@@ -3,10 +3,10 @@ import { Keypair, PublicKey, SystemProgram } from '@solana/web3.js';
 import { Middleware } from '..';
 import { GokiMiddleware } from './GokiMiddleware';
 import { MultisigMiddlewareBase } from './MultisigMiddlewareBase';
-import { SplGovernanceMiddleware } from './SplGovernanceMiddleware';
+import { SplGovernanceMiddleware, DEFAULT_REALM_PUBKEY, KNOWN_REALM_PUBKEYS } from './SplGovernanceMiddleware';
 import { KedgereeSDK } from '@marinade.finance/kedgeree-sdk';
 import { encode } from '@project-serum/anchor/dist/cjs/utils/bytes/utf8';
-import { PROGRAM_VERSION_V2 } from '@marinade.finance/spl-governance';
+import { PROGRAM_VERSION_V3 } from '@marinade.finance/spl-governance';
 
 export async function installMultisigMiddleware({
   middleware,
@@ -17,8 +17,8 @@ export async function installMultisigMiddleware({
   rentPayer,
   logOnly,
   community,
-  govProgId = new PublicKey('GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw'),
-  govProgVersion = PROGRAM_VERSION_V2,
+  govProgId = DEFAULT_REALM_PUBKEY,
+  govProgVersion = PROGRAM_VERSION_V3,
 }: {
   middleware: Middleware[];
   goki: GokiSDK;
@@ -67,7 +67,8 @@ export async function installMultisigMiddleware({
     if (!keyInfo) {
       return;
     }
-    if (keyInfo.owner.equals(govProgId)) {
+    const knownGovProgIds = KNOWN_REALM_PUBKEYS.concat(govProgId);
+    if (knownGovProgIds.find(progId => progId.equals(keyInfo.owner))) {
       const NATIVE_TREASURY_SEED = encode('native-treasury');
       if (
         Buffer.from(
