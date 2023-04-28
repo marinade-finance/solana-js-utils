@@ -1,13 +1,11 @@
 import { KedgereeSDK } from '@marinade.finance/kedgeree-sdk';
 import {
-  Provider,
   sleep,
   TransactionEnvelope,
   TransactionReceipt,
 } from '@saberhq/solana-contrib';
 import {
   getProposalsByGovernance,
-  Governance,
   ProposalState,
 } from '@marinade.finance/spl-governance';
 import { Keypair, PublicKey } from '@solana/web3.js';

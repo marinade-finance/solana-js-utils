@@ -3,10 +3,10 @@ import { Keypair, PublicKey, SystemProgram } from '@solana/web3.js';
 import { Middleware } from '..';
 import { GokiMiddleware } from './GokiMiddleware';
 import { MultisigMiddlewareBase } from './MultisigMiddlewareBase';
-import { SplGovernanceMiddleware } from './SplGovernanceMiddleware';
+import { SplGovernanceMiddleware, KNOWN_REALM_PUBKEYS } from './SplGovernanceMiddleware';
 import { KedgereeSDK } from '@marinade.finance/kedgeree-sdk';
 import { encode } from '@project-serum/anchor/dist/cjs/utils/bytes/utf8';
-import { PROGRAM_VERSION_V2 } from '@marinade.finance/spl-governance';
+import { PROGRAM_VERSION_V3 } from '@marinade.finance/spl-governance';
 
 export async function installMultisigMiddleware({
   middleware,
@@ -18,7 +18,7 @@ export async function installMultisigMiddleware({
   logOnly,
   community,
   govProgId = new PublicKey('GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw'),
-  govProgVersion = PROGRAM_VERSION_V2,
+  govProgVersion = PROGRAM_VERSION_V3,
 }: {
   middleware: Middleware[];
   goki: GokiSDK;
@@ -48,7 +48,7 @@ export async function installMultisigMiddleware({
           rentPayer,
         })
       );
-    } else if (account.accountInfo.owner.equals(govProgId)) {
+    } else if (checkKnownSplGovId(account.accountInfo.owner, [govProgId])) {
       middleware.push(
         await SplGovernanceMiddleware.create({
           provider: goki.provider,
@@ -67,7 +67,7 @@ export async function installMultisigMiddleware({
     if (!keyInfo) {
       return;
     }
-    if (keyInfo.owner.equals(govProgId)) {
+    if (checkKnownSplGovId(keyInfo.owner, [govProgId])) {
       const NATIVE_TREASURY_SEED = encode('native-treasury');
       if (
         Buffer.from(
@@ -99,4 +99,9 @@ export async function installMultisigMiddleware({
       throw new Error(`Unknown multisig program ${keyInfo.owner.toBase58()}`);
     }
   }
+}
+
+function checkKnownSplGovId(idToCheck: PublicKey, additionalGovProgIds: PublicKey[] = []): boolean {
+  const knownGovProgIds = KNOWN_REALM_PUBKEYS.concat(additionalGovProgIds);
+  return knownGovProgIds.find(progId => progId.equals(idToCheck)) !== undefined;
 }
