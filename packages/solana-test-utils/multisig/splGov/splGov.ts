@@ -159,10 +159,12 @@ export class SplGovHelper implements MultisigHelper {
         side: 'council',
         owner: new KeypairSignerHelper(tmpUser),
       });
+      await tmpTokenOwnerRecord.deposit(new BN(1));
       governance = await GovernanceHelper.create({
         kedgeree,
         tokenOwnerRecord: tmpTokenOwnerRecord,
       });
+      await tmpTokenOwnerRecord.withdraw();
     }
 
     const tokenOwnerRecords: TokenOwnerRecordHelper[] = [];

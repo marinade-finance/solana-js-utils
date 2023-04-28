@@ -6,6 +6,7 @@ import {
   withCreateTokenOwnerRecord,
   withDepositGoverningTokens,
   withSetGovernanceDelegate,
+  withWithdrawGoverningTokens,
 } from '@marinade.finance/spl-governance';
 import { Connection, PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
@@ -112,6 +113,23 @@ export class TokenOwnerRecordHelper {
       this.provider.wallet.publicKey,
       this.provider.wallet.publicKey,
       amount
+    );
+    await this.owner.runTx(tx);
+  }
+
+  async withdraw() {
+    const tx = new TransactionEnvelope(this.provider, []);
+    await withWithdrawGoverningTokens(
+      tx.instructions,
+      this.splGovId,
+      this.splGovVersion,
+      this.realm.address,
+      await getAssociatedTokenAddress(
+        this.mint.address,
+        this.provider.wallet.publicKey
+      ),
+      this.mint.address,
+      this.owner.authority,
     );
     await this.owner.runTx(tx);
   }
