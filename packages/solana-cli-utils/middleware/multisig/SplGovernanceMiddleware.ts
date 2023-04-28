@@ -16,9 +16,8 @@ import {
   withSignOffProposal,
 } from '@marinade.finance/spl-governance';
 
-export const DEFAULT_REALM_PUBKEY = new PublicKey('GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw')
 export const KNOWN_REALM_PUBKEYS = [
-  DEFAULT_REALM_PUBKEY,
+  new PublicKey('GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw'),
   new PublicKey('GovMaiHfpVPw8BAM1mbdzgmSZYDw2tdP32J2fapoQoYs')  // Marinade SPL Gov program id
 ]
 
