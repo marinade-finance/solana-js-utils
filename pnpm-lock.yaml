@@ -62,7 +62,7 @@ importers:
     specifiers:
       '@gokiprotocol/client': ^0.11.1
       '@marinade.finance/kedgeree-sdk': ^1.0.3
-      '@marinade.finance/solana-cli-utils': workspace:^0.0.81
+      '@marinade.finance/solana-cli-utils': workspace:^0.0.82
       '@marinade.finance/spl-governance': ^0.3.20
       '@metaplex-foundation/mpl-token-metadata': ^2.5.2
       '@project-serum/anchor': ^0.26
