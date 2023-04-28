@@ -1,6 +1,6 @@
 {
   "name": "@marinade.finance/solana-cli-utils",
-  "version": "0.0.82",
+  "version": "0.0.83",
   "description": "Common code for making solana related CLI",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
